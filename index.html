@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emdee</title>
+  <link rel="stylesheet" href="/src/style/app.css" />
+  <link rel="stylesheet" href="/src/style/search.css" />
+  <link rel="stylesheet" href="/src/style/source.css" />
+  <link rel="stylesheet" href="/src/style/print.css" />
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <header id="toolbar">
+    <div class="toolbar-left">
+      <button id="btn-toc" title="Table of Contents (Ctrl+Shift+T)">TOC</button>
+      <button id="btn-source" title="View Source (Ctrl+Shift+S)">Source</button>
+    </div>
+    <div class="toolbar-right">
+      <button id="btn-theme" title="Toggle Theme">Theme</button>
+      <button id="btn-print" title="Print (Ctrl+P)">Print</button>
+    </div>
+  </header>
+
+  <aside id="toc-sidebar" class="hidden">
+    <nav id="toc-nav"></nav>
+  </aside>
+
+  <main id="content-wrapper">
+    <article id="content" class="markdown-body"></article>
+  </main>
+
+  <div id="source-overlay" class="hidden">
+    <pre id="source-code"><code class="language-markdown"></code></pre>
+  </div>
+
+  <div id="search-bar" class="hidden">
+    <input type="text" id="search-input" placeholder="Search..." />
+    <span id="search-count"></span>
+    <button id="search-prev" title="Previous">Prev</button>
+    <button id="search-next" title="Next">Next</button>
+    <button id="search-close" title="Close (Esc)">Close</button>
+  </div>
+
+  <div id="welcome" class="hidden">
+    <div class="welcome-content">
+      <h1>emdee</h1>
+      <p>Drop a markdown file here to view it</p>
+      <p class="welcome-hint">or open a .md file from your file manager</p>
+    </div>
+  </div>
+</body>
+</html>

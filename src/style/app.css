@@ -1,0 +1,255 @@
+:root {
+  --toolbar-height: 40px;
+  --sidebar-width: 260px;
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --text: #24292f;
+  --text-secondary: #656d76;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --toolbar-bg: #f6f8fa;
+}
+
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --text: #e6edf3;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --toolbar-bg: #161b22;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* Toolbar */
+#toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--toolbar-height);
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  z-index: 100;
+  -webkit-app-region: drag;
+}
+
+#toolbar button {
+  -webkit-app-region: no-drag;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+#toolbar button:hover {
+  background: var(--border);
+}
+
+.toolbar-left, .toolbar-right {
+  display: flex;
+  gap: 6px;
+}
+
+/* TOC Sidebar */
+#toc-sidebar {
+  position: fixed;
+  top: var(--toolbar-height);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 50;
+  padding: 12px 0;
+}
+
+#toc-sidebar.hidden {
+  display: none;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  margin: 0;
+}
+
+.toc-item a {
+  display: block;
+  padding: 4px 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toc-item a:hover {
+  color: var(--text);
+}
+
+.toc-item a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.toc-level-1 a { padding-left: 16px; font-weight: 600; }
+.toc-level-2 a { padding-left: 28px; }
+.toc-level-3 a { padding-left: 40px; }
+.toc-level-4 a { padding-left: 52px; }
+.toc-level-5 a { padding-left: 64px; }
+.toc-level-6 a { padding-left: 76px; }
+
+.toc-empty {
+  padding: 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Content */
+#content-wrapper {
+  position: fixed;
+  top: var(--toolbar-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: left 0.2s;
+}
+
+#content-wrapper.sidebar-open {
+  left: var(--sidebar-width);
+}
+
+#content-wrapper.hidden {
+  display: none;
+}
+
+#content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+
+/* GitHub markdown body theme adaptation */
+.markdown-body {
+  background: transparent !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .markdown-body {
+  color-scheme: dark;
+}
+
+/* Mermaid */
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+}
+
+.mermaid-error {
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+  margin: 16px 0;
+}
+
+[data-theme="dark"] .mermaid-error {
+  background: #450a0a;
+  color: #fecaca;
+}
+
+/* Error */
+.error {
+  padding: 32px;
+  color: var(--text);
+}
+
+.error h2 {
+  color: #d1242f;
+  margin-bottom: 8px;
+}
+
+/* Welcome screen */
+#welcome {
+  position: fixed;
+  top: var(--toolbar-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+#welcome.hidden {
+  display: none;
+}
+
+.welcome-content {
+  text-align: center;
+}
+
+.welcome-content h1 {
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--text);
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.welcome-content p {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.welcome-hint {
+  font-size: 14px !important;
+  opacity: 0.6;
+}
+
+/* Hidden utility */
+.hidden {
+  display: none !important;
+}
