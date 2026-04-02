@@ -1,8 +1,12 @@
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use tauri::{AppHandle, Emitter, Listener, Manager};
+use std::sync::Mutex;
+use tauri::{AppHandle, Listener, Manager};
 
 static WINDOW_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+/// Holds the file path passed via CLI args for the main window to pick up once loaded.
+struct InitialFile(Mutex<Option<String>>);
 
 #[tauri::command]
 fn read_file(path: String) -> Result<String, String> {
@@ -14,6 +18,12 @@ fn resolve_path(base_dir: String, relative: String) -> String {
     let base = Path::new(&base_dir);
     let resolved = base.join(&relative);
     resolved.to_string_lossy().to_string()
+}
+
+/// Called by the frontend on init to check if a file was passed via CLI args.
+#[tauri::command]
+fn get_initial_file(state: tauri::State<'_, InitialFile>) -> Option<String> {
+    state.0.lock().unwrap().take()
 }
 
 fn open_file_in_new_window(app: &AppHandle, file_path: &str) {
@@ -52,7 +62,9 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path])
+        .plugin(tauri_plugin_dialog::init())
+        .manage(InitialFile(Mutex::new(None)))
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -64,7 +76,7 @@ pub fn run() {
 
             // Handle CLI args (Windows/Linux file association, or direct CLI invocation)
             let args: Vec<String> = std::env::args().collect();
-            let mut opened_file = false;
+            let mut first_file = true;
             for arg in args.iter().skip(1) {
                 if is_markdown_file(arg) {
                     let abs_path = if Path::new(arg).is_absolute() {
@@ -76,18 +88,11 @@ pub fn run() {
                     };
                     let path_str = abs_path.to_string_lossy().to_string();
 
-                    // For the first file, load it in the main window via event
-                    if !opened_file {
-                        let main_window = app.get_webview_window("main");
-                        if let Some(win) = main_window {
-                            let _ = win.emit("open-file", &path_str);
-                            let filename = abs_path
-                                .file_name()
-                                .map(|n| n.to_string_lossy().to_string())
-                                .unwrap_or_else(|| "emdee".to_string());
-                            let _ = win.set_title(&format!("emdee — {}", filename));
-                        }
-                        opened_file = true;
+                    if first_file {
+                        // Store for the main window to pick up via get_initial_file command
+                        let state = app.state::<InitialFile>();
+                        *state.0.lock().unwrap() = Some(path_str);
+                        first_file = false;
                     } else {
                         open_file_in_new_window(app.handle(), &path_str);
                     }
@@ -98,7 +103,6 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             {
                 let handle = app.handle().clone();
-                // Listen for file-drop events from the OS
                 app.listen("tauri://file-drop", move |event| {
                     let payload = event.payload();
                     if let Ok(paths) = serde_json::from_str::<Vec<String>>(payload) {

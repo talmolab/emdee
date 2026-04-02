@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
 import "prismjs/themes/prism.css";
@@ -53,6 +54,33 @@ async function loadFile(filePath) {
   document.getElementById("content-wrapper").classList.remove("hidden");
 }
 
+async function openFile() {
+  const selected = await openDialog({
+    multiple: false,
+    filters: [{ name: "Markdown", extensions: ["md", "markdown", "mdown", "mkd", "mdx"] }],
+  });
+  if (!selected) return;
+
+  const filePath = typeof selected === "string" ? selected : selected.path;
+  if (!filePath) return;
+
+  if (!rawMarkdown) {
+    await loadFile(filePath);
+  } else {
+    const label = `viewer-open-${Date.now()}`;
+    const encoded = encodeURIComponent(filePath);
+    const filename = filePath.replace(/\\/g, "/").split("/").pop();
+    new WebviewWindow(label, {
+      url: `index.html?file=${encoded}`,
+      title: `emdee — ${filename}`,
+      width: 960,
+      height: 720,
+      minWidth: 480,
+      minHeight: 360,
+    });
+  }
+}
+
 async function init() {
   // Init theme first (affects mermaid rendering)
   theme = initTheme();
@@ -61,6 +89,8 @@ async function init() {
   search = initSearch();
 
   // Wire up toolbar buttons
+  document.getElementById("btn-open").addEventListener("click", openFile);
+
   document.getElementById("btn-toc").addEventListener("click", () => {
     document.getElementById("toc-sidebar").classList.toggle("hidden");
     document.getElementById("content-wrapper").classList.toggle("sidebar-open");
@@ -82,7 +112,10 @@ async function init() {
   document.addEventListener("keydown", (e) => {
     const mod = e.ctrlKey || e.metaKey;
 
-    if (mod && e.key === "f") {
+    if (mod && e.key === "o") {
+      e.preventDefault();
+      openFile();
+    } else if (mod && e.key === "f") {
       e.preventDefault();
       search.open();
     } else if (mod && e.shiftKey && (e.key === "s" || e.key === "S")) {
@@ -134,25 +167,24 @@ async function init() {
     }
   });
 
-  // Listen for file-open events from Rust backend
-  const currentWindow = getCurrentWebviewWindow();
-  currentWindow.listen("open-file", async (event) => {
-    if (event.payload) {
-      await loadFile(event.payload);
-    }
-  });
-
-  // Check for file in URL query params (used by new windows)
+  // Determine which file to load:
+  // 1. URL query param (used by new windows spawned from Rust)
+  // 2. Initial file from CLI args (main window pulls from Rust state)
   const params = new URLSearchParams(window.location.search);
-  const filePath = params.get("file");
+  const queryFile = params.get("file");
 
-  if (filePath) {
-    const decoded = decodeURIComponent(filePath);
-    await loadFile(decoded);
+  if (queryFile) {
+    await loadFile(decodeURIComponent(queryFile));
   } else {
-    // Show welcome screen
-    document.getElementById("welcome").classList.remove("hidden");
-    document.getElementById("content-wrapper").classList.add("hidden");
+    // Check if Rust stored an initial file from CLI args
+    const initialFile = await invoke("get_initial_file");
+    if (initialFile) {
+      await loadFile(initialFile);
+    } else {
+      // Show welcome screen
+      document.getElementById("welcome").classList.remove("hidden");
+      document.getElementById("content-wrapper").classList.add("hidden");
+    }
   }
 }
 

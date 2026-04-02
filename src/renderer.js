@@ -4,9 +4,9 @@ import taskListPlugin from "markdown-it-task-lists";
 import anchorPlugin from "markdown-it-anchor";
 import katexPluginModule from "@vscode/markdown-it-katex";
 const katexPlugin = katexPluginModule.default || katexPluginModule;
-import prismPlugin from "markdown-it-prism";
+import Prism from "prismjs";
 
-// Import Prism languages
+// Import Prism languages (statically bundled for browser use)
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-typescript";
 import "prismjs/components/prism-python";
@@ -37,6 +37,14 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
+  highlight(str, lang) {
+    const grammar = lang && Prism.languages[lang];
+    if (grammar) {
+      return `<pre class="language-${lang}"><code class="language-${lang}">${Prism.highlight(str, grammar, lang)}</code></pre>`;
+    }
+    // No highlighting — return escaped HTML in a plain pre/code block
+    return `<pre class="language-plaintext"><code class="language-plaintext">${md.utils.escapeHtml(str)}</code></pre>`;
+  },
 });
 
 md.enable(["table", "strikethrough"]);
@@ -44,7 +52,6 @@ md.use(anchorPlugin, { permalink: false });
 md.use(footnotePlugin);
 md.use(taskListPlugin, { enabled: false, label: true });
 md.use(katexPlugin, { throwOnError: false });
-md.use(prismPlugin, { defaultLanguage: "plaintext" });
 
 export function renderMarkdown(source) {
   return md.render(source);
