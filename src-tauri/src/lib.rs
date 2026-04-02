@@ -82,9 +82,22 @@ pub fn run() {
                     let abs_path = if Path::new(arg).is_absolute() {
                         PathBuf::from(arg)
                     } else {
-                        std::env::current_dir()
-                            .unwrap_or_default()
-                            .join(arg)
+                        // Try cwd first, then parent of cwd (handles cargo tauri dev
+                        // where cwd is src-tauri/ but the file is in the project root)
+                        let cwd = std::env::current_dir().unwrap_or_default();
+                        let candidate = cwd.join(arg);
+                        if candidate.exists() {
+                            candidate
+                        } else if let Some(parent) = cwd.parent() {
+                            let parent_candidate = parent.join(arg);
+                            if parent_candidate.exists() {
+                                parent_candidate
+                            } else {
+                                candidate // fall back to original
+                            }
+                        } else {
+                            candidate
+                        }
                     };
                     let path_str = abs_path.to_string_lossy().to_string();
 
