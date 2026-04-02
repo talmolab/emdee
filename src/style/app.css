@@ -33,7 +33,7 @@ html, body {
   overflow: hidden;
 }
 
-/* Floating toolbar — invisible until hover near top */
+/* Floating toolbar — invisible until mouse near top */
 #toolbar {
   position: fixed;
   top: 8px;
@@ -55,28 +55,15 @@ html, body {
   -webkit-app-region: no-drag;
 }
 
-/* Invisible hover zone across the top of the window */
-#toolbar::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--toolbar-zone);
-  z-index: -1;
-}
-
-/* Show on hover anywhere in the zone */
-#toolbar:hover,
-#toolbar:focus-within {
+/* Shown via JS adding .toolbar-visible class */
+#toolbar.toolbar-visible {
   opacity: 1;
   pointer-events: auto;
   background: var(--bg-secondary);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
-[data-theme="dark"] #toolbar:hover,
-[data-theme="dark"] #toolbar:focus-within {
+[data-theme="dark"] #toolbar.toolbar-visible {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 

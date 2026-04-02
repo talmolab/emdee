@@ -181,6 +181,36 @@ async function init() {
     }
   });
 
+  // Floating toolbar: show/hide based on mouse proximity to top
+  const toolbar = document.getElementById("toolbar");
+  const TOOLBAR_ZONE = 60; // px from top edge to trigger
+  let toolbarHideTimeout = null;
+
+  document.addEventListener("mousemove", (e) => {
+    if (e.clientY <= TOOLBAR_ZONE) {
+      clearTimeout(toolbarHideTimeout);
+      toolbar.classList.add("toolbar-visible");
+    } else {
+      // Check if mouse is still over the toolbar itself
+      const rect = toolbar.getBoundingClientRect();
+      const overToolbar = e.clientX >= rect.left && e.clientX <= rect.right
+                       && e.clientY >= rect.top && e.clientY <= rect.bottom + 10;
+      if (!overToolbar) {
+        clearTimeout(toolbarHideTimeout);
+        toolbarHideTimeout = setTimeout(() => {
+          toolbar.classList.remove("toolbar-visible");
+        }, 300);
+      }
+    }
+  });
+
+  document.addEventListener("mouseleave", () => {
+    clearTimeout(toolbarHideTimeout);
+    toolbarHideTimeout = setTimeout(() => {
+      toolbar.classList.remove("toolbar-visible");
+    }, 300);
+  });
+
   // Pinch-to-zoom (touchpad gesture)
   document.addEventListener("wheel", (e) => {
     if (e.ctrlKey) {
