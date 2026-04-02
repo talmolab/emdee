@@ -2,17 +2,11 @@ const STORAGE_KEY = "emdee-theme";
 
 export function initTheme() {
   const saved = localStorage.getItem(STORAGE_KEY);
-  const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isDark = saved ? saved === "dark" : systemDark;
+  // Default to light — only go dark if user explicitly saved that preference
+  const isDark = saved === "dark";
 
   applyTheme(isDark);
-
-  // Follow system changes when no manual override
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      applyTheme(e.matches);
-    }
-  });
+  updateIcons(isDark);
 
   return { toggle, isDark: () => document.documentElement.dataset.theme === "dark" };
 }
@@ -21,9 +15,20 @@ function applyTheme(isDark) {
   document.documentElement.dataset.theme = isDark ? "dark" : "light";
 }
 
+function updateIcons(isDark) {
+  const sun = document.getElementById("icon-sun");
+  const moon = document.getElementById("icon-moon");
+  if (sun && moon) {
+    sun.style.display = isDark ? "none" : "block";
+    moon.style.display = isDark ? "block" : "none";
+  }
+}
+
 function toggle() {
   const current = document.documentElement.dataset.theme;
   const next = current === "dark" ? "light" : "dark";
-  applyTheme(next === "dark");
+  const isDark = next === "dark";
+  applyTheme(isDark);
+  updateIcons(isDark);
   localStorage.setItem(STORAGE_KEY, next);
 }

@@ -11,13 +11,44 @@ import { renderMermaidBlocks } from "./mermaid-loader.js";
 import { buildTOC } from "./toc.js";
 import { initSearch } from "./search.js";
 import { initTheme } from "./theme.js";
-import { initSourceToggle } from "./source-toggle.js";
+import { initSourceToggle, syncSourceSidebar } from "./source-toggle.js";
 
 let rawMarkdown = "";
 let fileDir = "";
 let search = null;
 let theme = null;
 let sourceToggle = null;
+
+// Zoom state
+const ZOOM_STEP = 0.1;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3.0;
+let zoomLevel = 1.0;
+
+function applyZoom() {
+  document.documentElement.style.fontSize = `${zoomLevel * 100}%`;
+}
+
+function zoomIn() {
+  zoomLevel = Math.min(ZOOM_MAX, zoomLevel + ZOOM_STEP);
+  applyZoom();
+}
+
+function zoomOut() {
+  zoomLevel = Math.max(ZOOM_MIN, zoomLevel - ZOOM_STEP);
+  applyZoom();
+}
+
+function zoomReset() {
+  zoomLevel = 1.0;
+  applyZoom();
+}
+
+function toggleSidebar() {
+  document.getElementById("toc-sidebar").classList.toggle("hidden");
+  document.getElementById("content-wrapper").classList.toggle("sidebar-open");
+  syncSourceSidebar();
+}
 
 async function loadFile(filePath) {
   try {
@@ -91,10 +122,7 @@ async function init() {
   // Wire up toolbar buttons
   document.getElementById("btn-open").addEventListener("click", openFile);
 
-  document.getElementById("btn-toc").addEventListener("click", () => {
-    document.getElementById("toc-sidebar").classList.toggle("hidden");
-    document.getElementById("content-wrapper").classList.toggle("sidebar-open");
-  });
+  document.getElementById("btn-toc").addEventListener("click", toggleSidebar);
 
   document.getElementById("btn-source").addEventListener("click", () => {
     if (sourceToggle) sourceToggle.toggle();
@@ -123,13 +151,47 @@ async function init() {
       if (sourceToggle) sourceToggle.toggle();
     } else if (mod && e.shiftKey && (e.key === "t" || e.key === "T")) {
       e.preventDefault();
-      document.getElementById("toc-sidebar").classList.toggle("hidden");
-      document.getElementById("content-wrapper").classList.toggle("sidebar-open");
+      toggleSidebar();
     } else if (mod && e.key === "p") {
       e.preventDefault();
       window.print();
+    } else if (mod && (e.key === "=" || e.key === "+")) {
+      e.preventDefault();
+      zoomIn();
+    } else if (mod && e.key === "-") {
+      e.preventDefault();
+      zoomOut();
+    } else if (mod && e.key === "0") {
+      e.preventDefault();
+      zoomReset();
+    } else if (mod && e.key === "a") {
+      // Select only document content, not toolbar/sidebar
+      e.preventDefault();
+      const sel = window.getSelection();
+      const range = document.createRange();
+      const sourceOverlay = document.getElementById("source-overlay");
+      const target = sourceOverlay && !sourceOverlay.classList.contains("hidden")
+        ? document.getElementById("source-code")
+        : document.getElementById("content");
+      if (target) {
+        range.selectNodeContents(target);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   });
+
+  // Pinch-to-zoom (touchpad gesture)
+  document.addEventListener("wheel", (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        zoomIn();
+      } else if (e.deltaY > 0) {
+        zoomOut();
+      }
+    }
+  }, { passive: false });
 
   // Drag and drop
   document.addEventListener("dragover", (e) => {
@@ -147,7 +209,6 @@ async function init() {
     for (const file of files) {
       const name = file.name.toLowerCase();
       if (name.endsWith(".md") || name.endsWith(".markdown") || name.endsWith(".mdx")) {
-        // If no file loaded, load in current window
         if (!rawMarkdown) {
           await loadFile(file.path);
         } else {
@@ -176,12 +237,10 @@ async function init() {
   if (queryFile) {
     await loadFile(decodeURIComponent(queryFile));
   } else {
-    // Check if Rust stored an initial file from CLI args
     const initialFile = await invoke("get_initial_file");
     if (initialFile) {
       await loadFile(initialFile);
     } else {
-      // Show welcome screen
       document.getElementById("welcome").classList.remove("hidden");
       document.getElementById("content-wrapper").classList.add("hidden");
     }
@@ -194,7 +253,7 @@ document.addEventListener("click", (e) => {
   if (!link) return;
 
   const href = link.getAttribute("href");
-  if (href.startsWith("#")) return; // anchor links are fine
+  if (href.startsWith("#")) return;
 
   if (href.startsWith("http://") || href.startsWith("https://")) {
     e.preventDefault();

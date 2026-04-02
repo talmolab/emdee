@@ -1,19 +1,25 @@
 #source-overlay {
   position: fixed;
-  top: var(--toolbar-height);
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: var(--bg);
   overflow-y: auto;
   z-index: 40;
+  transition: left 0.2s;
+}
+
+/* Adjust for TOC sidebar when open */
+#source-overlay.sidebar-open {
+  left: var(--sidebar-width);
 }
 
 #source-code {
   max-width: 900px;
   margin: 0 auto;
   padding: 32px 40px;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
   tab-size: 4;
 }
@@ -21,6 +27,7 @@
 #source-code code {
   background: transparent !important;
   font-family: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: 13px;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -86,7 +93,6 @@
   font-style: italic;
 }
 
-/* Title/heading tokens */
 [data-theme="dark"] .token.title {
   color: #79c0ff;
   font-weight: bold;
