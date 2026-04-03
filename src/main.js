@@ -227,24 +227,36 @@ async function init() {
   let pinchScale = 1.0;
   let gestureStartScale = 1.0;
 
-  function applyPinchZoom() {
+  function applyPinchZoom(animate) {
+    if (animate) {
+      document.body.style.transition = "transform 0.2s ease-out";
+    } else {
+      document.body.style.transition = "";
+    }
     document.body.style.transform = pinchScale === 1.0 ? "" : `scale(${pinchScale})`;
     document.body.style.transformOrigin = "top center";
   }
 
+  function snapPinchZoom() {
+    if (pinchScale < 1.0) pinchScale = 1.0;
+    applyPinchZoom(true);
+  }
+
   document.addEventListener("gesturestart", (e) => {
     e.preventDefault();
+    document.body.style.transition = "";
     gestureStartScale = pinchScale;
   });
 
   document.addEventListener("gesturechange", (e) => {
     e.preventDefault();
-    pinchScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, gestureStartScale * e.scale));
+    pinchScale = Math.min(ZOOM_MAX, Math.max(0.5, gestureStartScale * e.scale));
     applyPinchZoom();
   });
 
   document.addEventListener("gestureend", (e) => {
     e.preventDefault();
+    snapPinchZoom();
   });
 
   // Drag and drop
