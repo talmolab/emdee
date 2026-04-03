@@ -196,40 +196,130 @@ html, body {
   padding: 32px 40px;
 }
 
-/* GitHub markdown body — force light/dark theme colors */
+/* GitHub markdown body */
 .markdown-body {
   background: transparent !important;
-  color: var(--text) !important;
-  color-scheme: light;
 }
 
-[data-theme="dark"] .markdown-body {
-  color-scheme: dark;
+/*
+ * github-markdown-css variable overrides.
+ *
+ * The combined github-markdown.css gates dark/light variables behind
+ * @media (prefers-color-scheme), which breaks manual theme toggling via
+ * [data-theme]. We re-declare the same variables from that file here on the
+ * root [data-theme] selector (no media query) so the manual toggle works
+ * regardless of the OS color scheme.
+ *
+ * Placed on the root element so that both .markdown-body (rendered view) and
+ * #source-overlay (source view) can inherit them.
+ */
+[data-theme="dark"] {
+  --color-prettylights-syntax-comment: #9198a1;
+  --color-prettylights-syntax-constant: #79c0ff;
+  --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
+  --color-prettylights-syntax-entity: #d2a8ff;
+  --color-prettylights-syntax-entity-tag: #7ee787;
+  --color-prettylights-syntax-keyword: #ff7b72;
+  --color-prettylights-syntax-storage-modifier-import: #f0f6fc;
+  --color-prettylights-syntax-string: #a5d6ff;
+  --color-prettylights-syntax-string-regexp: #7ee787;
+  --color-prettylights-syntax-variable: #ffa657;
+  --color-prettylights-syntax-brackethighlighter-angle: #9198a1;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-markup-bold: #f0f6fc;
+  --color-prettylights-syntax-markup-changed-bg: #5a1e02;
+  --color-prettylights-syntax-markup-changed-text: #ffdfb6;
+  --color-prettylights-syntax-markup-deleted-bg: #67060c;
+  --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
+  --color-prettylights-syntax-markup-heading: #1f6feb;
+  --color-prettylights-syntax-markup-ignored-bg: #1158c7;
+  --color-prettylights-syntax-markup-ignored-text: #f0f6fc;
+  --color-prettylights-syntax-markup-inserted-bg: #033a16;
+  --color-prettylights-syntax-markup-inserted-text: #aff5b4;
+  --color-prettylights-syntax-markup-italic: #f0f6fc;
+  --color-prettylights-syntax-markup-list: #f2cc60;
+  --color-prettylights-syntax-meta-diff-range: #d2a8ff;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #3d444d;
+  --fgColor-default: #f0f6fc;
+  --fgColor-muted: #9198a1;
+  --fgColor-accent: #4493f8;
+  --fgColor-attention: #d29922;
+  --fgColor-danger: #f85149;
+  --fgColor-done: #ab7df8;
+  --fgColor-success: #3fb950;
+  --bgColor-default: #0d1117;
+  --bgColor-muted: #151b23;
+  --bgColor-attention-muted: #bb800926;
+  --bgColor-neutral-muted: #656c7633;
+  --borderColor-default: #3d444d;
+  --borderColor-muted: #3d444db3;
+  --borderColor-accent-emphasis: #1f6feb;
+  --borderColor-attention-emphasis: #9e6a03;
+  --borderColor-danger-emphasis: #da3633;
+  --borderColor-done-emphasis: #8957e5;
+  --borderColor-success-emphasis: #238636;
+  --borderColor-neutral-muted: var(--borderColor-muted);
+  --focus-outlineColor: var(--borderColor-accent-emphasis);
 }
 
-/* Tables: override github-markdown-css which may default to dark */
-.markdown-body table {
-  border-color: var(--border) !important;
+[data-theme="light"] {
+  --color-prettylights-syntax-comment: #59636e;
+  --color-prettylights-syntax-constant: #0550ae;
+  --color-prettylights-syntax-constant-other-reference-link: #0a3069;
+  --color-prettylights-syntax-entity: #6639ba;
+  --color-prettylights-syntax-entity-tag: #0550ae;
+  --color-prettylights-syntax-keyword: #cf222e;
+  --color-prettylights-syntax-storage-modifier-import: #1f2328;
+  --color-prettylights-syntax-string: #0a3069;
+  --color-prettylights-syntax-string-regexp: #116329;
+  --color-prettylights-syntax-variable: #953800;
+  --color-prettylights-syntax-brackethighlighter-angle: #59636e;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #82071e;
+  --color-prettylights-syntax-carriage-return-bg: #cf222e;
+  --color-prettylights-syntax-carriage-return-text: #f6f8fa;
+  --color-prettylights-syntax-markup-bold: #1f2328;
+  --color-prettylights-syntax-markup-changed-bg: #ffd8b5;
+  --color-prettylights-syntax-markup-changed-text: #953800;
+  --color-prettylights-syntax-markup-deleted-bg: #ffebe9;
+  --color-prettylights-syntax-markup-deleted-text: #82071e;
+  --color-prettylights-syntax-markup-heading: #0550ae;
+  --color-prettylights-syntax-markup-ignored-bg: #0550ae;
+  --color-prettylights-syntax-markup-ignored-text: #d1d9e0;
+  --color-prettylights-syntax-markup-inserted-bg: #dafbe1;
+  --color-prettylights-syntax-markup-inserted-text: #116329;
+  --color-prettylights-syntax-markup-italic: #1f2328;
+  --color-prettylights-syntax-markup-list: #3b2300;
+  --color-prettylights-syntax-meta-diff-range: #8250df;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #818b98;
+  --fgColor-default: #1f2328;
+  --fgColor-muted: #59636e;
+  --fgColor-accent: #0969da;
+  --fgColor-attention: #9a6700;
+  --fgColor-danger: #d1242f;
+  --fgColor-done: #8250df;
+  --fgColor-success: #1a7f37;
+  --bgColor-default: #ffffff;
+  --bgColor-muted: #f6f8fa;
+  --bgColor-attention-muted: #fff8c5;
+  --bgColor-neutral-muted: #818b981f;
+  --borderColor-default: #d1d9e0;
+  --borderColor-muted: #d1d9e0b3;
+  --borderColor-accent-emphasis: #0969da;
+  --borderColor-attention-emphasis: #9a6700;
+  --borderColor-danger-emphasis: #cf222e;
+  --borderColor-done-emphasis: #8250df;
+  --borderColor-success-emphasis: #1a7f37;
+  --borderColor-neutral-muted: var(--borderColor-muted);
+  --focus-outlineColor: var(--borderColor-accent-emphasis);
 }
 
-.markdown-body table tr {
-  background-color: var(--bg) !important;
-  border-color: var(--border) !important;
-}
-
-.markdown-body table tr:nth-child(2n) {
-  background-color: var(--bg-secondary) !important;
-}
-
-.markdown-body table th,
-.markdown-body table td {
-  border-color: var(--border) !important;
-  color: var(--text) !important;
-}
-
-.markdown-body table th {
-  background-color: var(--bg-secondary) !important;
-}
+/* Also set color-scheme on .markdown-body for proper UA defaults */
+/* Tell the browser which color scheme is active so WebKit doesn't apply
+   automatic dark-mode adjustments to the page. */
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
 
 /* Code blocks — slightly smaller font */
 .markdown-body pre {
@@ -240,11 +330,124 @@ html, body {
   font-size: 13px !important;
 }
 
-/* Inline code */
-.markdown-body code:not([class*="language-"]) {
-  background: var(--bg-secondary);
-  color: var(--text);
-  border: 1px solid var(--border);
+/*
+ * Override Prism's hardcoded pre background so code blocks use
+ * github-markdown-css's --bgColor-muted (light/dark aware).
+ */
+.markdown-body pre[class*="language-"] {
+  background: var(--bgColor-muted, #f6f8fa) !important;
+}
+
+/*
+ * Map Prism tokens to github-markdown-css's prettylights variables.
+ *
+ * This replaces Prism's built-in theme colors with the same syntax color
+ * palette GitHub uses, sourced from the --color-prettylights-syntax-*
+ * variables defined by github-markdown-css. Both light and dark modes are
+ * handled automatically by the variable values above.
+ */
+
+/* Override Prism's static base color with our CSS variable.
+   Uses --fgColor-default (from github-markdown-css) for proper contrast in
+   both light and dark modes, with --text as fallback. */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: var(--fgColor-default, var(--text)) !important;
+  text-shadow: none !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--color-prettylights-syntax-comment, #59636e) !important;
+}
+
+.token.punctuation {
+  color: var(--fgColor-muted, #59636e) !important;
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: var(--color-prettylights-syntax-constant, #0550ae) !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: var(--color-prettylights-syntax-string, #0a3069) !important;
+}
+
+.token.string {
+  color: var(--color-prettylights-syntax-string, #0a3069) !important;
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+  color: var(--color-prettylights-syntax-entity, #6639ba) !important;
+  background: none !important;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: var(--color-prettylights-syntax-keyword, #cf222e) !important;
+}
+
+.token.function,
+.token.class-name {
+  color: var(--color-prettylights-syntax-entity, #6639ba) !important;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: var(--color-prettylights-syntax-variable, #953800) !important;
+}
+
+.token.deleted {
+  color: var(--color-prettylights-syntax-markup-deleted-text, #82071e) !important;
+}
+
+/* Markdown-specific tokens (source view) */
+.token.title {
+  color: var(--color-prettylights-syntax-markup-heading, #0550ae) !important;
+  font-weight: bold;
+}
+
+.token.list {
+  color: var(--color-prettylights-syntax-markup-list, #3b2300) !important;
+}
+
+.token.bold .token.content {
+  color: var(--color-prettylights-syntax-markup-bold) !important;
+}
+
+.token.italic .token.content {
+  color: var(--color-prettylights-syntax-markup-italic) !important;
+}
+
+.token.strike .token.content {
+  color: var(--fgColor-muted) !important;
+}
+
+.token.code {
+  color: var(--color-prettylights-syntax-entity-tag, #0550ae) !important;
+}
+
+.token.url-reference .token.string {
+  color: var(--color-prettylights-syntax-constant-other-reference-link, #0a3069) !important;
 }
 
 /* Mermaid */

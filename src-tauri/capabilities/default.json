@@ -12,6 +12,7 @@
     "shell:allow-open",
     "dialog:allow-open",
     "core:webview:allow-print",
-    "core:webview:allow-set-webview-zoom"
+    "core:webview:allow-set-webview-zoom",
+    "core:window:allow-set-theme"
   ]
 }

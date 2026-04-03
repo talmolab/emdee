@@ -112,12 +112,13 @@ async function openFile() {
       height: 720,
       minWidth: 480,
       minHeight: 360,
+      theme: theme?.isDark() ? "dark" : "light",
     });
   }
 }
 
 async function init() {
-  // Init theme first (affects mermaid rendering)
+  // Init theme first (affects mermaid rendering and native window appearance)
   theme = initTheme();
 
   // Init search
@@ -287,6 +288,7 @@ async function init() {
             height: 720,
             minWidth: 480,
             minHeight: 360,
+            theme: theme?.isDark() ? "dark" : "light",
           });
         }
         break;

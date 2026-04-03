@@ -1,3 +1,5 @@
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+
 const STORAGE_KEY = "emdee-theme";
 
 export function initTheme() {
@@ -12,7 +14,13 @@ export function initTheme() {
 }
 
 function applyTheme(isDark) {
-  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+  const scheme = isDark ? "dark" : "light";
+  document.documentElement.dataset.theme = scheme;
+  // Sync the color-scheme meta tag
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.content = scheme;
+  // Set native window theme — ensures WKWebView's prefers-color-scheme matches
+  getCurrentWebviewWindow().setTheme(scheme).catch(() => {});
 }
 
 function updateIcons(isDark) {
