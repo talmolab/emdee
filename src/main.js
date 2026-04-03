@@ -26,7 +26,7 @@ const ZOOM_MAX = 3.0;
 let zoomLevel = 1.0;
 
 function applyZoom() {
-  document.documentElement.style.fontSize = `${zoomLevel * 100}%`;
+  getCurrentWebviewWindow().setZoom(zoomLevel);
 }
 
 function zoomIn() {
@@ -79,6 +79,10 @@ async function loadFile(filePath) {
 
   // Source toggle
   sourceToggle = initSourceToggle(rawMarkdown);
+
+  // Update window title
+  const filename = filePath.replace(/\\/g, "/").split("/").pop();
+  getCurrentWebviewWindow().setTitle(`${filename} — emdee`);
 
   // Hide welcome, show content
   document.getElementById("welcome").classList.add("hidden");
@@ -211,17 +215,37 @@ async function init() {
     }, 300);
   });
 
-  // Pinch-to-zoom (touchpad gesture)
+  // Ctrl+scroll zoom (discrete mouse wheel only)
   document.addEventListener("wheel", (e) => {
     if (e.ctrlKey) {
       e.preventDefault();
-      if (e.deltaY < 0) {
-        zoomIn();
-      } else if (e.deltaY > 0) {
-        zoomOut();
-      }
+      if (e.deltaY < 0) zoomIn(); else if (e.deltaY > 0) zoomOut();
     }
   }, { passive: false });
+
+  // Trackpad pinch-to-zoom: smooth visual zoom via CSS transform (no reflow)
+  let pinchScale = 1.0;
+  let gestureStartScale = 1.0;
+
+  function applyPinchZoom() {
+    document.body.style.transform = pinchScale === 1.0 ? "" : `scale(${pinchScale})`;
+    document.body.style.transformOrigin = "top center";
+  }
+
+  document.addEventListener("gesturestart", (e) => {
+    e.preventDefault();
+    gestureStartScale = pinchScale;
+  });
+
+  document.addEventListener("gesturechange", (e) => {
+    e.preventDefault();
+    pinchScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, gestureStartScale * e.scale));
+    applyPinchZoom();
+  });
+
+  document.addEventListener("gestureend", (e) => {
+    e.preventDefault();
+  });
 
   // Drag and drop
   document.addEventListener("dragover", (e) => {
