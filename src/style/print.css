@@ -1,9 +1,14 @@
+/* Print layout fixes (triggered by window.print() / Cmd+P).
+   Light mode is forced via JS beforeprint/afterprint events.
+   PDF export uses the html.pdf-export class + JS theme switch. */
+
 @media print {
-  #toolbar,
-  #toc-sidebar,
-  #search-bar,
-  #source-overlay,
-  #welcome {
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  #toolbar, #toc-sidebar, #search-bar, #source-overlay, #welcome {
     display: none !important;
   }
 
@@ -21,6 +26,7 @@
 
   .markdown-body {
     font-size: 12pt;
+    box-shadow: none !important;
   }
 
   .mermaid-diagram svg {
@@ -36,4 +42,49 @@
   a[href^="#"]::after {
     content: none;
   }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  pre, table, .mermaid-diagram {
+    page-break-inside: avoid;
+  }
+}
+
+/* PDF export layout (applied via JS class before createPDF capture) */
+
+html.pdf-export #toolbar,
+html.pdf-export #toc-sidebar,
+html.pdf-export #search-bar,
+html.pdf-export #source-overlay,
+html.pdf-export #welcome {
+  display: none !important;
+}
+
+html.pdf-export,
+html.pdf-export body {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+html.pdf-export #content-wrapper {
+  position: static !important;
+  overflow: visible !important;
+  left: 0 !important;
+}
+
+html.pdf-export #content {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+html.pdf-export .markdown-body {
+  font-size: 12pt;
+  box-shadow: none !important;
+}
+
+html.pdf-export .mermaid-diagram svg {
+  max-width: 100% !important;
 }

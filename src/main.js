@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { Menu, Submenu } from "@tauri-apps/api/menu";
 import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
 import "./style/prism-theme.css";
@@ -15,6 +16,7 @@ import { initSourceToggle, syncSourceSidebar } from "./source-toggle.js";
 
 let rawMarkdown = "";
 let fileDir = "";
+let currentFilename = "";
 let search = null;
 let theme = null;
 let sourceToggle = null;
@@ -82,11 +84,45 @@ async function loadFile(filePath) {
 
   // Update window title
   const filename = filePath.replace(/\\/g, "/").split("/").pop();
+  currentFilename = filename;
   getCurrentWebviewWindow().setTitle(`${filename} — emdee`);
 
   // Hide welcome, show content
   document.getElementById("welcome").classList.add("hidden");
   document.getElementById("content-wrapper").classList.remove("hidden");
+}
+
+async function exportPDF() {
+  if (!rawMarkdown) return;
+
+  const defaultName = currentFilename ? currentFilename.replace(/\.\w+$/, ".pdf") : "document.pdf";
+  const filePath = await saveDialog({
+    filters: [{ name: "PDF", extensions: ["pdf"] }],
+    defaultPath: defaultName,
+  });
+  if (!filePath) return;
+
+  // Force light mode: switch data-theme, native window theme, and color-scheme meta
+  const wasDark = document.documentElement.dataset.theme === "dark";
+  document.documentElement.dataset.theme = "light";
+  document.documentElement.classList.add("pdf-export");
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.content = "light";
+  if (wasDark) await getCurrentWebviewWindow().setTheme("light");
+
+  // Give the webview time to apply the theme change
+  await new Promise((r) => setTimeout(r, 100));
+
+  try {
+    await invoke("export_pdf", { outputPath: filePath });
+  } finally {
+    document.documentElement.classList.remove("pdf-export");
+    if (wasDark) {
+      document.documentElement.dataset.theme = "dark";
+      if (meta) meta.content = "dark";
+      await getCurrentWebviewWindow().setTheme("dark");
+    }
+  }
 }
 
 async function openFile() {
@@ -124,6 +160,23 @@ async function init() {
   // Init search
   search = initSearch();
 
+  // Force light mode during print dialog (Cmd+P)
+  let printWasDark = false;
+  window.addEventListener("beforeprint", () => {
+    printWasDark = document.documentElement.dataset.theme === "dark";
+    document.documentElement.dataset.theme = "light";
+    const meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) meta.content = "light";
+  });
+  window.addEventListener("afterprint", () => {
+    if (printWasDark) {
+      document.documentElement.dataset.theme = "dark";
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = "dark";
+      printWasDark = false;
+    }
+  });
+
   // Wire up toolbar buttons
   document.getElementById("btn-open").addEventListener("click", openFile);
 
@@ -137,9 +190,7 @@ async function init() {
     theme.toggle();
   });
 
-  document.getElementById("btn-print").addEventListener("click", () => {
-    window.print();
-  });
+  document.getElementById("btn-pdf").addEventListener("click", exportPDF);
 
   // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
@@ -157,6 +208,9 @@ async function init() {
     } else if (mod && e.shiftKey && (e.key === "t" || e.key === "T")) {
       e.preventDefault();
       toggleSidebar();
+    } else if (mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
+      e.preventDefault();
+      exportPDF();
     } else if (mod && e.key === "p") {
       e.preventDefault();
       window.print();
@@ -295,6 +349,43 @@ async function init() {
       }
     }
   });
+
+  // Build native menu bar
+  const fileMenu = await Submenu.new({
+    text: "File",
+    items: [
+      { id: "menu-open", text: "Open...", accelerator: "CmdOrCtrl+O", action: () => openFile() },
+      { item: "Separator" },
+      { id: "menu-print", text: "Print...", accelerator: "CmdOrCtrl+P", action: () => window.print() },
+      { id: "menu-export-pdf", text: "Export PDF...", accelerator: "CmdOrCtrl+Shift+E", action: () => exportPDF() },
+    ],
+  });
+
+  const editMenu = await Submenu.new({
+    text: "Edit",
+    items: [
+      { item: "Undo" },
+      { item: "Redo" },
+      { item: "Separator" },
+      { item: "Cut" },
+      { item: "Copy" },
+      { item: "Paste" },
+      { item: "SelectAll" },
+    ],
+  });
+
+  const viewMenu = await Submenu.new({
+    text: "View",
+    items: [
+      { id: "menu-toc", text: "Table of Contents", accelerator: "CmdOrCtrl+Shift+T", action: () => toggleSidebar() },
+      { id: "menu-source", text: "View Source", accelerator: "CmdOrCtrl+Shift+S", action: () => sourceToggle?.toggle() },
+      { item: "Separator" },
+      { id: "menu-theme", text: "Toggle Theme", action: () => theme.toggle() },
+    ],
+  });
+
+  const menu = await Menu.new({ items: [fileMenu, editMenu, viewMenu] });
+  await menu.setAsAppMenu();
 
   // Determine which file to load:
   // 1. URL query param (used by new windows spawned from Rust)

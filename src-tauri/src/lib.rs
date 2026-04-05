@@ -3,6 +3,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 use tauri::{AppHandle, Listener, Manager};
 
+#[cfg(target_os = "macos")]
+mod pdf;
+
 static WINDOW_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// Holds the file path passed via CLI args for the main window to pick up once loaded.
@@ -24,6 +27,13 @@ fn resolve_path(base_dir: String, relative: String) -> String {
 #[tauri::command]
 fn get_initial_file(state: tauri::State<'_, InitialFile>) -> Option<String> {
     state.0.lock().unwrap().take()
+}
+
+/// Export the current webview content as a PDF file.
+#[cfg(target_os = "macos")]
+#[tauri::command]
+async fn export_pdf(window: tauri::WebviewWindow, output_path: String) -> Result<(), String> {
+    pdf::export_pdf(window, output_path).await
 }
 
 fn open_file_in_new_window(app: &AppHandle, file_path: &str) {
@@ -64,7 +74,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file])
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

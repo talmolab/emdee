@@ -13,6 +13,8 @@
     "dialog:allow-open",
     "core:webview:allow-print",
     "core:webview:allow-set-webview-zoom",
-    "core:window:allow-set-theme"
+    "core:window:allow-set-theme",
+    "dialog:allow-save",
+    "core:menu:default"
   ]
 }
