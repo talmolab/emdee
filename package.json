@@ -13,6 +13,7 @@
     "@tauri-apps/plugin-deep-link": "^2.4.7",
     "@tauri-apps/plugin-dialog": "^2.6.0",
     "@tauri-apps/plugin-shell": "^2.3.5",
+    "@tauri-apps/plugin-updater": "^2.10.1",
     "@vscode/markdown-it-katex": "^1.1.2",
     "github-markdown-css": "^5.9.0",
     "katex": "^0.16.44",

@@ -15,6 +15,7 @@
     "core:webview:allow-set-webview-zoom",
     "core:window:allow-set-theme",
     "dialog:allow-save",
-    "core:menu:default"
+    "core:menu:default",
+    "updater:default"
   ]
 }

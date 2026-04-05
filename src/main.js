@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { open as openDialog, save as saveDialog, ask, message } from "@tauri-apps/plugin-dialog";
 import { Menu, Submenu } from "@tauri-apps/api/menu";
+import { check } from "@tauri-apps/plugin-updater";
 import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
 import "./style/prism-theme.css";
@@ -150,6 +151,40 @@ async function openFile() {
       minHeight: 360,
       theme: theme?.isDark() ? "dark" : "light",
     });
+  }
+}
+
+async function checkForUpdates(silent = false) {
+  try {
+    const update = await check();
+    if (update) {
+      const yes = await ask(
+        `A new version of emdee is available!\n\n` +
+        `Current: v${update.currentVersion}\n` +
+        `Latest: v${update.version}\n\n` +
+        `Would you like to download and install it?`,
+        { title: "Update Available", kind: "info", okLabel: "Update", cancelLabel: "Later" }
+      );
+      if (yes) {
+        await update.downloadAndInstall();
+        await message(
+          "Update installed. Please restart emdee to use the new version.",
+          { title: "Update Complete", kind: "info" }
+        );
+      }
+    } else if (!silent) {
+      await message("You're running the latest version of emdee.", {
+        title: "No Updates",
+        kind: "info",
+      });
+    }
+  } catch (e) {
+    if (!silent) {
+      await message(`Failed to check for updates: ${e}`, {
+        title: "Update Error",
+        kind: "error",
+      });
+    }
   }
 }
 
@@ -384,7 +419,14 @@ async function init() {
     ],
   });
 
-  const menu = await Menu.new({ items: [fileMenu, editMenu, viewMenu] });
+  const helpMenu = await Submenu.new({
+    text: "Help",
+    items: [
+      { id: "menu-update", text: "Check for Updates...", action: () => checkForUpdates(false) },
+    ],
+  });
+
+  const menu = await Menu.new({ items: [fileMenu, editMenu, viewMenu, helpMenu] });
   await menu.setAsAppMenu();
 
   // Determine which file to load:
@@ -404,6 +446,9 @@ async function init() {
       document.getElementById("content-wrapper").classList.add("hidden");
     }
   }
+
+  // Check for updates silently after startup
+  setTimeout(() => checkForUpdates(true), 3000);
 }
 
 // Handle links: open external links in default browser

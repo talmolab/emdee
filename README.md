@@ -26,15 +26,31 @@ Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprin
 
 ## Install
 
-Download the latest release for your platform:
+### Quick install
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/talmolab/emdee/main/scripts/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/talmolab/emdee/main/scripts/install.ps1 | iex
+```
+
+### Manual download
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/talmolab/emdee/releases/latest):
 
 | Platform | Format |
 |----------|--------|
-| macOS | `.dmg` |
+| macOS (Universal) | `.dmg` |
 | Windows | `.exe` (NSIS) |
 | Linux | `.deb`, `.AppImage` |
 
 Or build from source (see below).
+
+The app checks for updates automatically on launch and can be updated from **Help > Check for Updates**.
 
 ## Usage
 
