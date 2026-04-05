@@ -35,7 +35,7 @@
       "endpoints": [
         "https://github.com/talmolab/emdee/releases/latest/download/latest.json"
       ],
-      "pubkey": ""
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJGQTE1NkY5QzkxRjFBQjMKUldTekdoL0orVmFoTDBGQ3BmSDFYeXN3cmUrTk5LdytlUXVtaWdkdzJsZHNVT2cxODd2ek43U1UK"
     }
   },
   "bundle": {
