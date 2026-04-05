@@ -36,6 +36,12 @@ async fn export_pdf(window: tauri::WebviewWindow, output_path: String) -> Result
     pdf::export_pdf(window, output_path).await
 }
 
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+async fn export_pdf() -> Result<(), String> {
+    Err("PDF export is only supported on macOS".into())
+}
+
 fn open_file_in_new_window(app: &AppHandle, file_path: &str) {
     let count = WINDOW_COUNTER.fetch_add(1, Ordering::SeqCst);
     let label = format!("viewer-{}", count);
@@ -75,13 +81,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler({
-            #[cfg(target_os = "macos")]
-            let handler = tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf];
-            #[cfg(not(target_os = "macos"))]
-            let handler = tauri::generate_handler![read_file, resolve_path, get_initial_file];
-            handler
-        })
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
