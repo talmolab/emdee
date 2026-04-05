@@ -186,20 +186,20 @@ async function init() {
     }
   });
 
-  // Floating toolbar: show/hide based on mouse proximity to top
+  // Floating toolbar: show/hide based on mouse proximity to bottom
   const toolbar = document.getElementById("toolbar");
-  const TOOLBAR_ZONE = 60; // px from top edge to trigger
+  const TOOLBAR_ZONE = 60; // px from bottom edge to trigger
   let toolbarHideTimeout = null;
 
   document.addEventListener("mousemove", (e) => {
-    if (e.clientY <= TOOLBAR_ZONE) {
+    if (e.clientY >= window.innerHeight - TOOLBAR_ZONE) {
       clearTimeout(toolbarHideTimeout);
       toolbar.classList.add("toolbar-visible");
     } else {
       // Check if mouse is still over the toolbar itself
       const rect = toolbar.getBoundingClientRect();
       const overToolbar = e.clientX >= rect.left && e.clientX <= rect.right
-                       && e.clientY >= rect.top && e.clientY <= rect.bottom + 10;
+                       && e.clientY >= rect.top - 10 && e.clientY <= rect.bottom;
       if (!overToolbar) {
         clearTimeout(toolbarHideTimeout);
         toolbarHideTimeout = setTimeout(() => {
