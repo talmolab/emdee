@@ -23,6 +23,7 @@ Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprin
 - **Print / PDF** -- native print dialog with clean output
 - **File associations** -- registers as handler for `.md`, `.markdown`, `.mdown`, `.mkd`, `.mdx`
 - **Multi-window** -- each file opens in its own window
+- **Auto-update** -- checks for updates on launch, install from Help menu
 
 ## Install
 
@@ -45,8 +46,8 @@ Download the latest release for your platform from [GitHub Releases](https://git
 | Platform | Format |
 |----------|--------|
 | macOS (Universal) | `.dmg` |
-| Windows | `.exe` (NSIS) |
-| Linux | `.deb`, `.AppImage` |
+| Windows | `.exe` (NSIS), `.msi` |
+| Linux | `.deb`, `.rpm`, `.AppImage` |
 
 Or build from source (see below).
 
@@ -72,6 +73,7 @@ emdee README.md
 | Cmd/Ctrl+Shift+S | Toggle source view |
 | Cmd/Ctrl+Shift+T | Toggle table of contents |
 | Cmd/Ctrl+P | Print |
+| Cmd/Ctrl+Shift+E | Export PDF (macOS) |
 | Cmd/Ctrl+= | Zoom in |
 | Cmd/Ctrl+- | Zoom out |
 | Cmd/Ctrl+0 | Reset zoom |
