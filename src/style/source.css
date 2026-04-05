@@ -32,7 +32,7 @@
   word-wrap: break-word;
 }
 
-/* Dark theme — handled globally by scoped Prism Tomorrow Night in app.css */
+/* Dark theme — colors handled by prism-theme.css via CSS variables */
 [data-theme="dark"] #source-overlay {
   background: var(--bg);
 }

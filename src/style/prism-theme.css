@@ -1,0 +1,173 @@
+/*
+ * Custom Prism.js theme for emdee.
+ *
+ * Replaces prismjs/themes/prism.css entirely. All colors use CSS variables
+ * (--color-prettylights-syntax-*, --fgColor-*, --bgColor-*) defined in
+ * app.css on [data-theme="dark"] and [data-theme="light"], so light/dark
+ * modes are handled automatically with no overrides or !important needed.
+ *
+ * Structural styles (whitespace, tab-size, hyphens, etc.) are carried over
+ * from the original prism.css.
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+  color: var(--fgColor-default, var(--text));
+  background: none;
+  text-shadow: none;
+  font-family: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code",
+    Consolas, Monaco, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* Selection */
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection,
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection {
+  text-shadow: none;
+  background: var(--bgColor-accent-muted, #b3d4fc);
+}
+
+@media print {
+  code[class*="language-"],
+  pre[class*="language-"] {
+    text-shadow: none;
+  }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: var(--bgColor-muted, #f6f8fa);
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: 0.1em;
+  border-radius: 0.3em;
+  white-space: normal;
+}
+
+/* ---- Token colors ---- */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--color-prettylights-syntax-comment, #59636e);
+}
+
+.token.punctuation {
+  color: var(--fgColor-muted, #59636e);
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: var(--color-prettylights-syntax-constant, #0550ae);
+}
+
+.token.selector,
+.token.attr-name,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: var(--color-prettylights-syntax-string, #0a3069);
+}
+
+.token.string {
+  color: var(--color-prettylights-syntax-string, #0a3069);
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+  color: var(--color-prettylights-syntax-entity, #6639ba);
+  background: none;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: var(--color-prettylights-syntax-keyword, #cf222e);
+}
+
+.token.function,
+.token.class-name {
+  color: var(--color-prettylights-syntax-entity, #6639ba);
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: var(--color-prettylights-syntax-variable, #953800);
+}
+
+.token.deleted {
+  color: var(--color-prettylights-syntax-markup-deleted-text, #82071e);
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+/* ---- Markdown-specific tokens (source view) ---- */
+
+.token.title {
+  color: var(--color-prettylights-syntax-markup-heading, #0550ae);
+  font-weight: bold;
+}
+
+.token.list {
+  color: var(--color-prettylights-syntax-markup-list, #3b2300);
+}
+
+.token.bold .token.content {
+  color: var(--color-prettylights-syntax-markup-bold);
+}
+
+.token.italic .token.content {
+  color: var(--color-prettylights-syntax-markup-italic);
+}
+
+.token.strike .token.content {
+  color: var(--fgColor-muted);
+}
+
+.token.code {
+  color: var(--color-prettylights-syntax-entity-tag, #0550ae);
+}
+
+.token.url-reference .token.string {
+  color: var(--color-prettylights-syntax-constant-other-reference-link, #0a3069);
+}

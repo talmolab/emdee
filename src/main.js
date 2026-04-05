@@ -3,7 +3,7 @@ import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewW
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
-import "prismjs/themes/prism.css";
+import "./style/prism-theme.css";
 
 import { renderMarkdown } from "./renderer.js";
 import { resolveMediaPaths } from "./media.js";
