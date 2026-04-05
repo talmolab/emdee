@@ -75,7 +75,13 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf])
+        .invoke_handler({
+            #[cfg(target_os = "macos")]
+            let handler = tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf];
+            #[cfg(not(target_os = "macos"))]
+            let handler = tauri::generate_handler![read_file, resolve_path, get_initial_file];
+            handler
+        })
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
