@@ -26,9 +26,9 @@ rm -f "$ROOT/package.json.bak"
 sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" "$ROOT/src-tauri/tauri.conf.json"
 rm -f "$ROOT/src-tauri/tauri.conf.json.bak"
 
-# src-tauri/Cargo.toml (only the [package] version, not dependency versions)
-sed -i.bak '0,/^version = ".*"/{s/^version = ".*"/version = "'"$VERSION"'"/}' "$ROOT/src-tauri/Cargo.toml"
-rm -f "$ROOT/src-tauri/Cargo.toml.bak"
+# src-tauri/Cargo.toml (only the first version = line, under [package])
+awk -v ver="$VERSION" '!done && /^version = "/ { sub(/"[^"]*"/, "\"" ver "\""); done=1 } 1' "$ROOT/src-tauri/Cargo.toml" > "$ROOT/src-tauri/Cargo.toml.tmp"
+mv "$ROOT/src-tauri/Cargo.toml.tmp" "$ROOT/src-tauri/Cargo.toml"
 
 echo "Updated:"
 echo "  package.json         -> $VERSION"

@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "emdee",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.emdee.app",
   "build": {
     "frontendDist": "../dist",
@@ -40,6 +40,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": "v1Compatible",
     "targets": "all",
     "icon": [
       "icons/32x32.png",
