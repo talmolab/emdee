@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Gradient background - subtle blue-black -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect x="32" y="32" width="448" height="448" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Bold "md" in lowercase, modern geometric style -->
+  <!-- m -->
+  <path d="M 80 352 L 80 208
+           C 80 176 104 160 132 160
+           C 160 160 176 176 176 208
+           L 176 352
+           M 176 208
+           C 176 176 200 160 228 160
+           C 256 160 272 176 272 208
+           L 272 352"
+        fill="none" stroke="#e6edf3" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- d -->
+  <path d="M 432 100 L 432 352
+           M 432 256
+           C 432 204 396 168 352 168
+           C 308 168 272 204 272 256
+           C 272 308 308 344 352 344
+           C 396 344 432 308 432 256 Z"
+        fill="none" stroke="#58a6ff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

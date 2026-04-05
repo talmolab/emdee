@@ -1,6 +1,10 @@
-# emdee
+<p align="center">
+  <img src="src-tauri/icons/icon.svg" alt="emdee icon" width="128" height="128">
+</p>
 
-A fast, minimal, cross-platform markdown viewer. Opens `.md` files natively on macOS, Windows, and Linux.
+<h1 align="center">emdee</h1>
+
+<p align="center">A fast, minimal, cross-platform markdown viewer. Opens <code>.md</code> files natively on macOS, Windows, and Linux.</p>
 
 Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprint and near-instant startup.
 
