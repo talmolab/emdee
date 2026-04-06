@@ -96,21 +96,37 @@ install_macos() {
 
   # Create CLI symlink so `emdee` works from terminal
   cli_binary="/Applications/${APP_NAME}.app/Contents/MacOS/${APP_NAME}"
-  symlink_dir="/usr/local/bin"
-  symlink_path="${symlink_dir}/${APP_NAME}"
   if [ -x "$cli_binary" ]; then
-    if [ -d "$symlink_dir" ] && [ -w "$symlink_dir" ]; then
-      ln -sf "$cli_binary" "$symlink_path"
-      echo "Created symlink: $symlink_path"
-    elif command -v sudo >/dev/null 2>&1; then
-      echo "Creating CLI symlink (requires sudo)..."
-      sudo mkdir -p "$symlink_dir"
-      sudo ln -sf "$cli_binary" "$symlink_path"
-      echo "Created symlink: $symlink_path"
-    else
+    symlink_created=false
+
+    # Prefer ~/.local/bin (no sudo required)
+    user_bin="${HOME}/.local/bin"
+    if mkdir -p "$user_bin" 2>/dev/null; then
+      ln -sf "$cli_binary" "$user_bin/${APP_NAME}"
+      echo "Created symlink: $user_bin/${APP_NAME}"
+      symlink_created=true
+
+      case ":$PATH:" in
+        *":$user_bin:"*) ;;
+        *)
+          echo ""
+          echo "Note: $user_bin is not in your PATH. Add it with:"
+          echo "  export PATH=\"$user_bin:\$PATH\""
+          ;;
+      esac
+    fi
+
+    # Also symlink to /usr/local/bin if writable (no sudo)
+    if [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
+      ln -sf "$cli_binary" "/usr/local/bin/${APP_NAME}"
+      echo "Created symlink: /usr/local/bin/${APP_NAME}"
+      symlink_created=true
+    fi
+
+    if [ "$symlink_created" = false ]; then
       echo ""
       echo "Note: Could not create CLI symlink. To use from terminal, run:"
-      echo "  sudo ln -sf \"$cli_binary\" \"$symlink_path\""
+      echo "  mkdir -p ~/.local/bin && ln -sf \"$cli_binary\" ~/.local/bin/${APP_NAME}"
     fi
   fi
 
