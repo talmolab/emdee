@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
-use tauri::{AppHandle, Listener, Manager};
+use tauri::{AppHandle, Manager};
 
 #[cfg(target_os = "macos")]
 mod pdf;
@@ -127,22 +127,6 @@ pub fn run() {
                         open_file_in_new_window(app.handle(), &path_str);
                     }
                 }
-            }
-
-            // macOS: handle files opened via Finder "Open With" / drag onto dock icon
-            #[cfg(target_os = "macos")]
-            {
-                let handle = app.handle().clone();
-                app.listen("tauri://file-drop", move |event| {
-                    let payload = event.payload();
-                    if let Ok(paths) = serde_json::from_str::<Vec<String>>(payload) {
-                        for path in paths {
-                            if is_markdown_file(&path) {
-                                open_file_in_new_window(&handle, &path);
-                            }
-                        }
-                    }
-                });
             }
 
             Ok(())

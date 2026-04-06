@@ -349,38 +349,48 @@ async function init() {
     snapPinchZoom();
   });
 
-  // Drag and drop
+  // Drag and drop — use Tauri's onDragDropEvent for actual file paths
   document.addEventListener("dragover", (e) => {
     e.preventDefault();
     e.stopPropagation();
   });
 
-  document.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const appWindow = getCurrentWebviewWindow();
+  appWindow.onDragDropEvent(async (event) => {
+    if (event.payload.type === 'enter') {
+      document.body.classList.add('drop-hover');
+    } else if (event.payload.type === 'leave') {
+      document.body.classList.remove('drop-hover');
+    } else if (event.payload.type === 'drop') {
+      document.body.classList.remove('drop-hover');
 
-    const files = e.dataTransfer?.files;
-    if (!files || files.length === 0) return;
-
-    for (const file of files) {
-      const name = file.name.toLowerCase();
-      if (name.endsWith(".md") || name.endsWith(".markdown") || name.endsWith(".mdx")) {
-        if (!rawMarkdown) {
-          await loadFile(file.path);
-        } else {
-          const label = `viewer-drop-${Date.now()}`;
-          const encoded = encodeURIComponent(file.path);
-          new WebviewWindow(label, {
-            url: `index.html?file=${encoded}`,
-            title: `emdee — ${file.name}`,
-            width: 960,
-            height: 720,
-            minWidth: 480,
-            minHeight: 360,
-            theme: theme?.isDark() ? "dark" : "light",
-          });
+      for (const path of event.payload.paths) {
+        const name = path.toLowerCase();
+        if (
+          name.endsWith(".md") ||
+          name.endsWith(".markdown") ||
+          name.endsWith(".mdx") ||
+          name.endsWith(".mdown") ||
+          name.endsWith(".mkd")
+        ) {
+          if (!rawMarkdown) {
+            await loadFile(path);
+          } else {
+            const label = `viewer-drop-${Date.now()}`;
+            const encoded = encodeURIComponent(path);
+            const filename = path.split(/[/\\]/).pop() || "file.md";
+            new WebviewWindow(label, {
+              url: `index.html?file=${encoded}`,
+              title: `emdee — ${filename}`,
+              width: 960,
+              height: 720,
+              minWidth: 480,
+              minHeight: 360,
+              theme: theme?.isDark() ? "dark" : "light",
+            });
+          }
+          break;
         }
-        break;
       }
     }
   });
