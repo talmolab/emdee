@@ -35,7 +35,7 @@ pub async fn export_pdf(window: WebviewWindow, output_path: String) -> Result<()
 
                 let handler = PrintToPdfCompletedHandler::create(Box::new(
                     move |errorcode, is_successful| {
-                        if errorcode.is_ok() && is_successful.as_bool() {
+                        if errorcode.is_ok() && is_successful {
                             let _ = tx.send(Ok(()));
                         } else {
                             let _ = tx.send(Err(format!(
