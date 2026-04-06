@@ -67,6 +67,34 @@ html, body {
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
+/* Always-visible toolbar on welcome screen */
+#toolbar.toolbar-welcome {
+  opacity: 1;
+  pointer-events: auto;
+  background: var(--bg-secondary);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+[data-theme="dark"] #toolbar.toolbar-welcome {
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Brief fade-in/out hint after first file load */
+@keyframes toolbar-hint {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+#toolbar.toolbar-hint {
+  animation: toolbar-hint 3s ease forwards;
+  pointer-events: auto;
+  background: var(--bg-secondary);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+[data-theme="dark"] #toolbar.toolbar-hint {
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
 #toolbar button {
   -webkit-app-region: no-drag;
   background: none;
@@ -454,6 +482,27 @@ html, body {
 .welcome-hint {
   font-size: 14px !important;
   opacity: 0.6;
+}
+
+#btn-welcome-open {
+  margin-top: 24px;
+  padding: 10px 28px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+#btn-welcome-open:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+[data-theme="dark"] #btn-welcome-open:hover {
+  color: #0d1117;
 }
 
 /* Drop hover visual feedback */

@@ -127,6 +127,16 @@ async function loadFile(filePath) {
   // Hide welcome, show content
   document.getElementById("welcome").classList.add("hidden");
   document.getElementById("content-wrapper").classList.remove("hidden");
+
+  // Transition toolbar: welcome → hint animation → proximity-reveal
+  const tb = document.getElementById("toolbar");
+  if (tb.classList.contains("toolbar-welcome")) {
+    tb.classList.remove("toolbar-welcome");
+    tb.classList.add("toolbar-hint");
+    tb.addEventListener("animationend", () => {
+      tb.classList.remove("toolbar-hint");
+    }, { once: true });
+  }
 }
 
 async function exportPDF() {
@@ -271,6 +281,7 @@ async function init() {
 
   // Wire up toolbar buttons
   document.getElementById("btn-open").addEventListener("click", openFile);
+  document.getElementById("btn-welcome-open").addEventListener("click", openFile);
 
   document.getElementById("btn-toc").addEventListener("click", toggleSidebar);
 
@@ -338,6 +349,9 @@ async function init() {
   let toolbarHideTimeout = null;
 
   document.addEventListener("mousemove", (e) => {
+    // Don't interfere with welcome or hint states
+    if (toolbar.classList.contains("toolbar-welcome") || toolbar.classList.contains("toolbar-hint")) return;
+
     if (e.clientY >= window.innerHeight - TOOLBAR_ZONE) {
       clearTimeout(toolbarHideTimeout);
       toolbar.classList.add("toolbar-visible");
@@ -356,6 +370,7 @@ async function init() {
   });
 
   document.addEventListener("mouseleave", () => {
+    if (toolbar.classList.contains("toolbar-welcome") || toolbar.classList.contains("toolbar-hint")) return;
     clearTimeout(toolbarHideTimeout);
     toolbarHideTimeout = setTimeout(() => {
       toolbar.classList.remove("toolbar-visible");
@@ -524,6 +539,7 @@ async function init() {
       if (!rawMarkdown) {
         document.getElementById("welcome").classList.remove("hidden");
         document.getElementById("content-wrapper").classList.add("hidden");
+        toolbar.classList.add("toolbar-welcome");
       }
     }
   }
