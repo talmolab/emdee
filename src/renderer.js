@@ -42,8 +42,10 @@ const md = new MarkdownIt({
     if (grammar) {
       return `<pre class="language-${lang}"><code class="language-${lang}">${Prism.highlight(str, grammar, lang)}</code></pre>`;
     }
-    // No highlighting — return escaped HTML in a plain pre/code block
-    return `<pre class="language-plaintext"><code class="language-plaintext">${md.utils.escapeHtml(str)}</code></pre>`;
+    // No highlighting — preserve original language class so post-processors
+    // (e.g. mermaid-loader) can still find their blocks by class name
+    const cls = lang ? `language-${lang}` : "language-plaintext";
+    return `<pre class="${cls}"><code class="${cls}">${md.utils.escapeHtml(str)}</code></pre>`;
   },
 });
 

@@ -412,6 +412,8 @@ async function init() {
       { item: "Separator" },
       { id: "menu-print", text: "Print...", accelerator: "CmdOrCtrl+P", action: () => window.print() },
       { id: "menu-export-pdf", text: "Export PDF...", accelerator: "CmdOrCtrl+Shift+E", action: () => exportPDF() },
+      { item: "Separator" },
+      { item: "Quit" },
     ],
   });
 
