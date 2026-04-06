@@ -149,9 +149,7 @@ sequenceDiagram
 
 ## Images
 
-Here's where an image would go (relative path):
-
-![Test Image](./test-image.png)
+![emdee logo](src-tauri/icons/icon.svg)
 
 ## Inline HTML
 
