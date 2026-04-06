@@ -11,6 +11,8 @@
     "core:webview:allow-create-webview-window",
     "shell:allow-open",
     "dialog:allow-open",
+    "dialog:allow-ask",
+    "dialog:allow-message",
     "core:webview:allow-print",
     "core:webview:allow-set-webview-zoom",
     "core:window:allow-set-theme",
