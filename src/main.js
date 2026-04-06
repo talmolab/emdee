@@ -3,6 +3,7 @@ import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewW
 import { open as openDialog, save as saveDialog, ask, message } from "@tauri-apps/plugin-dialog";
 import { Menu, Submenu } from "@tauri-apps/api/menu";
 import { check } from "@tauri-apps/plugin-updater";
+import { onOpenUrl, getCurrent as getDeepLinkUrls } from "@tauri-apps/plugin-deep-link";
 import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
 import "./style/prism-theme.css";
@@ -51,6 +52,35 @@ function toggleSidebar() {
   document.getElementById("toc-sidebar").classList.toggle("hidden");
   document.getElementById("content-wrapper").classList.toggle("sidebar-open");
   syncSourceSidebar();
+}
+
+const MD_EXTENSIONS = /\.(md|markdown|mdown|mkd|mdx)$/i;
+
+function fileUrlToPath(urlStr) {
+  try {
+    const url = new URL(urlStr);
+    if (url.protocol === "file:") return decodeURIComponent(url.pathname);
+  } catch { /* not a valid URL */ }
+  return null;
+}
+
+async function handleOpenUrls(urls) {
+  for (const urlStr of urls) {
+    const path = fileUrlToPath(urlStr);
+    if (!path || !MD_EXTENSIONS.test(path)) continue;
+    if (!rawMarkdown) {
+      await loadFile(path);
+    } else {
+      const label = `viewer-url-${Date.now()}`;
+      const encoded = encodeURIComponent(path);
+      const filename = path.split(/[/\\]/).pop() || "file.md";
+      new WebviewWindow(label, {
+        url: `index.html?file=${encoded}`,
+        title: `emdee \u2014 ${filename}`,
+        width: 960, height: 720, minWidth: 480, minHeight: 360,
+      });
+    }
+  }
 }
 
 async function loadFile(filePath) {
@@ -163,6 +193,15 @@ async function installCli() {
   }
 }
 
+async function setDefaultHandler() {
+  try {
+    await invoke("set_default_md_handler");
+    await message("emdee is now the default app for Markdown files.", { title: "Default App", kind: "info" });
+  } catch (err) {
+    await message(err, { title: "Default App", kind: "error" });
+  }
+}
+
 async function checkForUpdates(silent = false) {
   try {
     const update = await check();
@@ -203,6 +242,9 @@ async function init() {
 
   // Init search
   search = initSearch();
+
+  // Listen for files opened via macOS "Open With" while app is running
+  onOpenUrl((urls) => handleOpenUrls(urls));
 
   // Force light mode during print dialog (Cmd+P)
   let printWasDark = false;
@@ -444,6 +486,7 @@ async function init() {
     text: "Help",
     items: [
       { id: "menu-install-cli", text: "Install CLI Command...", action: () => installCli() },
+      { id: "menu-set-default", text: "Set as Default Markdown App...", action: () => setDefaultHandler() },
       { item: "Separator" },
       { id: "menu-update", text: "Check for Updates...", action: () => checkForUpdates(false) },
     ],
@@ -455,6 +498,7 @@ async function init() {
   // Determine which file to load:
   // 1. URL query param (used by new windows spawned from Rust)
   // 2. Initial file from CLI args (main window pulls from Rust state)
+  // 3. Deep-link URL from macOS file association (Apple Events)
   const params = new URLSearchParams(window.location.search);
   const queryFile = params.get("file");
 
@@ -465,8 +509,16 @@ async function init() {
     if (initialFile) {
       await loadFile(initialFile);
     } else {
-      document.getElementById("welcome").classList.remove("hidden");
-      document.getElementById("content-wrapper").classList.add("hidden");
+      // Check if launched via macOS file association (deep-link plugin captures Apple Events)
+      try {
+        const deepLinkUrls = await getDeepLinkUrls();
+        if (deepLinkUrls?.length) await handleOpenUrls(deepLinkUrls);
+      } catch { /* deep-link plugin may not be available on all platforms */ }
+
+      if (!rawMarkdown) {
+        document.getElementById("welcome").classList.remove("hidden");
+        document.getElementById("content-wrapper").classList.add("hidden");
+      }
     }
   }
 

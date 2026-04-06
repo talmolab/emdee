@@ -867,6 +867,7 @@ name = "emdee"
 version = "0.1.2"
 dependencies = [
  "block2",
+ "core-foundation",
  "dirs",
  "log",
  "objc2",

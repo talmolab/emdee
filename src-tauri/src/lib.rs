@@ -49,6 +49,136 @@ fn install_cli() -> Result<String, String> {
     cli_path::install_cli()
 }
 
+/// Set emdee as the default handler for markdown file extensions on macOS.
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn set_default_md_handler() -> Result<(), String> {
+    use core_foundation::base::TCFType;
+    use core_foundation::string::CFString;
+
+    #[link(name = "CoreServices", kind = "framework")]
+    extern "C" {
+        fn UTTypeCreatePreferredIdentifierForTag(
+            tag_class: *const std::ffi::c_void,
+            tag: *const std::ffi::c_void,
+            conforming_to: *const std::ffi::c_void,
+        ) -> *mut std::ffi::c_void;
+
+        fn LSSetDefaultRoleHandlerForContentType(
+            content_type: *const std::ffi::c_void,
+            role: u32,
+            handler_bundle_id: *const std::ffi::c_void,
+        ) -> i32;
+    }
+
+    const LS_ROLES_ALL: u32 = 0xFFFF_FFFF;
+    let tag_class = CFString::new("public.filename-extension");
+    let bundle_id = CFString::new("com.emdee.app");
+
+    for ext in &["md", "markdown", "mdown", "mkd", "mdx"] {
+        let ext_cf = CFString::new(ext);
+        unsafe {
+            let uti = UTTypeCreatePreferredIdentifierForTag(
+                tag_class.as_concrete_TypeRef() as *const _,
+                ext_cf.as_concrete_TypeRef() as *const _,
+                std::ptr::null(),
+            );
+            if uti.is_null() {
+                continue;
+            }
+            let result = LSSetDefaultRoleHandlerForContentType(
+                uti,
+                LS_ROLES_ALL,
+                bundle_id.as_concrete_TypeRef() as *const _,
+            );
+            core_foundation::base::CFRelease(uti as *const _);
+            if result != 0 {
+                return Err(format!("Failed to set handler for .{}: error {}", ext, result));
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Set emdee as the default handler for markdown file extensions on Windows.
+/// Registers a ProgID and associates each extension under HKCU, then notifies the shell.
+#[cfg(target_os = "windows")]
+#[tauri::command]
+fn set_default_md_handler() -> Result<(), String> {
+    use winreg::enums::*;
+    use winreg::RegKey;
+
+    let exe = std::env::current_exe()
+        .map_err(|e| format!("Failed to get executable path: {}", e))?;
+    let exe_str = exe.to_string_lossy().to_string();
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+
+    let classes = hkcu
+        .open_subkey_with_flags("Software\\Classes", KEY_WRITE | KEY_READ)
+        .map_err(|e| format!("Failed to open registry: {}", e))?;
+
+    // Create ProgID: emdee.Markdown
+    let (prog_key, _) = classes
+        .create_subkey("emdee.Markdown")
+        .map_err(|e| format!("Failed to create ProgID: {}", e))?;
+    prog_key
+        .set_value("", &"Markdown File")
+        .map_err(|e| format!("Failed to set ProgID value: {}", e))?;
+
+    let (cmd_key, _) = prog_key
+        .create_subkey("shell\\open\\command")
+        .map_err(|e| format!("Failed to create command key: {}", e))?;
+    cmd_key
+        .set_value("", &format!("\"{}\" \"%1\"", exe_str))
+        .map_err(|e| format!("Failed to set command: {}", e))?;
+
+    // Associate each extension with the ProgID
+    for ext in &["md", "markdown", "mdown", "mkd", "mdx"] {
+        let ext_key_name = format!(".{}", ext);
+        let (ext_key, _) = classes
+            .create_subkey(&ext_key_name)
+            .map_err(|e| format!("Failed to create .{} key: {}", ext, e))?;
+        ext_key
+            .set_value("", &"emdee.Markdown")
+            .map_err(|e| format!("Failed to set .{} association: {}", ext, e))?;
+    }
+
+    // Notify the shell that file associations have changed
+    unsafe {
+        windows_sys::Win32::UI::WindowsAndMessaging::SendMessageTimeoutW(
+            windows_sys::Win32::UI::WindowsAndMessaging::HWND_BROADCAST,
+            windows_sys::Win32::UI::WindowsAndMessaging::WM_SETTINGCHANGE,
+            0,
+            0,
+            windows_sys::Win32::UI::WindowsAndMessaging::SMTO_ABORTIFHUNG,
+            5000,
+            std::ptr::null_mut(),
+        );
+    }
+
+    Ok(())
+}
+
+/// Set emdee as the default handler for markdown file extensions on Linux
+/// via `xdg-mime default`.
+#[cfg(target_os = "linux")]
+#[tauri::command]
+fn set_default_md_handler() -> Result<(), String> {
+    // Determine the .desktop file name — Tauri uses the identifier from tauri.conf.json
+    let desktop_entry = "com.emdee.app.desktop";
+
+    let status = std::process::Command::new("xdg-mime")
+        .args(["default", desktop_entry, "text/markdown"])
+        .status()
+        .map_err(|e| format!("Failed to run xdg-mime: {}", e))?;
+
+    if !status.success() {
+        return Err("xdg-mime failed to set default handler".into());
+    }
+
+    Ok(())
+}
+
 fn open_file_in_new_window(app: &AppHandle, file_path: &str) {
     let count = WINDOW_COUNTER.fetch_add(1, Ordering::SeqCst);
     let label = format!("viewer-{}", count);
@@ -88,7 +218,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf, install_cli])
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf, install_cli, set_default_md_handler])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
