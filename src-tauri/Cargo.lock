@@ -885,6 +885,8 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-updater",
  "urlencoding",
+ "webview2-com",
+ "windows",
  "windows-sys 0.61.2",
  "winreg 0.56.0",
 ]

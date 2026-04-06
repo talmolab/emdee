@@ -347,7 +347,7 @@ async function init() {
     theme.toggle();
   });
 
-  if (platform === "macos") {
+  if (platform === "macos" || platform === "windows") {
     document.getElementById("btn-pdf").addEventListener("click", exportPDF);
   } else {
     document.getElementById("btn-pdf").style.display = "none";
@@ -370,7 +370,7 @@ async function init() {
     } else if (mod && e.shiftKey && (e.key === "t" || e.key === "T")) {
       e.preventDefault();
       toggleSidebar();
-    } else if (platform === "macos" && mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
+    } else if ((platform === "macos" || platform === "windows") && mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
       e.preventDefault();
       exportPDF();
     } else if (mod && e.shiftKey && (e.key === "d" || e.key === "D")) {
@@ -537,7 +537,7 @@ async function init() {
     { item: "Separator" },
     { id: "menu-print", text: "Print...", accelerator: "CmdOrCtrl+P", action: () => window.print() },
   ];
-  if (platform === "macos") {
+  if (platform === "macos" || platform === "windows") {
     fileMenuItems.push({ id: "menu-export-pdf", text: "Export PDF...", accelerator: "CmdOrCtrl+Shift+E", action: () => exportPDF() });
   }
   fileMenuItems.push({ item: "Separator" }, { item: "Quit" });

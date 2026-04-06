@@ -10,6 +10,9 @@ mod cli_path;
 #[cfg(target_os = "macos")]
 mod pdf;
 
+#[cfg(target_os = "windows")]
+mod pdf_windows;
+
 static WINDOW_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// Holds the file path passed via CLI args for the main window to pick up once loaded.
@@ -80,10 +83,16 @@ async fn export_pdf(window: tauri::WebviewWindow, output_path: String) -> Result
     pdf::export_pdf(window, output_path).await
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+#[tauri::command]
+async fn export_pdf(window: tauri::WebviewWindow, output_path: String) -> Result<(), String> {
+    pdf_windows::export_pdf(window, output_path).await
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "windows")))]
 #[tauri::command]
 async fn export_pdf() -> Result<(), String> {
-    Err("PDF export is only supported on macOS".into())
+    Err("PDF export is only supported on macOS and Windows".into())
 }
 
 #[tauri::command]
