@@ -87,7 +87,13 @@ async function loadFile(filePath) {
   try {
     rawMarkdown = await invoke("read_file", { path: filePath });
   } catch (err) {
-    document.getElementById("content").innerHTML = `<div class="error"><h2>Error</h2><p>${err}</p></div>`;
+    const content = document.getElementById("content");
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error";
+    errorDiv.innerHTML = "<h2>Error</h2><p></p>";
+    errorDiv.querySelector("p").textContent = String(err);
+    content.innerHTML = "";
+    content.appendChild(errorDiv);
     return;
   }
 
