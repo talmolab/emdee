@@ -61,21 +61,34 @@ export function initSearch() {
     for (const textNode of textNodes) {
       const text = textNode.textContent;
       const lowerText = text.toLowerCase();
-      const idx = lowerText.indexOf(lowerQuery);
-      if (idx === -1) continue;
 
-      const before = text.slice(0, idx);
-      const match = text.slice(idx, idx + query.length);
-      const after = text.slice(idx + query.length);
+      // Find all match positions
+      const positions = [];
+      let searchFrom = 0;
+      while (searchFrom < lowerText.length) {
+        const idx = lowerText.indexOf(lowerQuery, searchFrom);
+        if (idx === -1) break;
+        positions.push(idx);
+        searchFrom = idx + lowerQuery.length;
+      }
+      if (positions.length === 0) continue;
 
-      const mark = document.createElement("mark");
-      mark.className = "search-highlight";
-      mark.textContent = match;
-
+      // Build fragment with all matches highlighted
       const frag = document.createDocumentFragment();
-      if (before) frag.appendChild(document.createTextNode(before));
-      frag.appendChild(mark);
-      if (after) frag.appendChild(document.createTextNode(after));
+      let lastEnd = 0;
+      for (const idx of positions) {
+        if (idx > lastEnd) {
+          frag.appendChild(document.createTextNode(text.slice(lastEnd, idx)));
+        }
+        const mark = document.createElement("mark");
+        mark.className = "search-highlight";
+        mark.textContent = text.slice(idx, idx + query.length);
+        frag.appendChild(mark);
+        lastEnd = idx + query.length;
+      }
+      if (lastEnd < text.length) {
+        frag.appendChild(document.createTextNode(text.slice(lastEnd)));
+      }
 
       textNode.parentNode.replaceChild(frag, textNode);
     }

@@ -309,7 +309,7 @@ async function init() {
     } else if (mod && e.key === "0") {
       e.preventDefault();
       zoomReset();
-    } else if (mod && e.key === "a") {
+    } else if (mod && e.key === "a" && document.activeElement?.id !== "search-input") {
       // Select only document content, not toolbar/sidebar
       e.preventDefault();
       const sel = window.getSelection();
