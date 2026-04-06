@@ -53,6 +53,8 @@ Download the latest release for your platform from [GitHub Releases](https://git
 
 Or build from source (see below).
 
+> **Note (Windows):** If you download the `.exe` or `.msi` installer manually, you may need to add `%LOCALAPPDATA%\emdee` to your PATH to use the `emdee` command from the terminal. The one-liner installer does this automatically.
+
 The app checks for updates automatically on launch and can be updated from **Help > Check for Updates**.
 
 ## Usage

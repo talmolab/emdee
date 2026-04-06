@@ -93,9 +93,30 @@ install_macos() {
 
   echo ""
   echo "Installed ${APP_NAME} v${version} to /Applications/${APP_NAME}.app"
+
+  # Create CLI symlink so `emdee` works from terminal
+  cli_binary="/Applications/${APP_NAME}.app/Contents/MacOS/${APP_NAME}"
+  symlink_dir="/usr/local/bin"
+  symlink_path="${symlink_dir}/${APP_NAME}"
+  if [ -x "$cli_binary" ]; then
+    if [ -d "$symlink_dir" ] && [ -w "$symlink_dir" ]; then
+      ln -sf "$cli_binary" "$symlink_path"
+      echo "Created symlink: $symlink_path"
+    elif command -v sudo >/dev/null 2>&1; then
+      echo "Creating CLI symlink (requires sudo)..."
+      sudo mkdir -p "$symlink_dir"
+      sudo ln -sf "$cli_binary" "$symlink_path"
+      echo "Created symlink: $symlink_path"
+    else
+      echo ""
+      echo "Note: Could not create CLI symlink. To use from terminal, run:"
+      echo "  sudo ln -sf \"$cli_binary\" \"$symlink_path\""
+    fi
+  fi
+
   echo ""
   echo "Usage:"
-  echo "  open /Applications/${APP_NAME}.app"
+  echo "  ${APP_NAME} README.md"
   echo "  open -a ${APP_NAME} README.md"
 }
 
