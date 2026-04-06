@@ -1,6 +1,6 @@
 [package]
 name = "emdee"
-version = "0.1.2"
+version = "0.1.3"
 description = "A minimal cross-platform markdown viewer"
 authors = ["Talmo Pereira <talmo@talmolab.org>"]
 license = "MIT"
