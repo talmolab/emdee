@@ -55,6 +55,15 @@
         "mimeType": "text/markdown",
         "role": "Viewer"
       }
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerHooks": "./nsis/hooks.nsh"
+      },
+      "wix": {
+        "fragmentPaths": ["./wix/path.wxs"],
+        "componentRefs": ["PathEntry"]
+      }
+    }
   }
 }

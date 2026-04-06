@@ -3,6 +3,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
+mod cli_path;
+
 #[cfg(target_os = "macos")]
 mod pdf;
 
@@ -40,6 +42,11 @@ async fn export_pdf(window: tauri::WebviewWindow, output_path: String) -> Result
 #[tauri::command]
 async fn export_pdf() -> Result<(), String> {
     Err("PDF export is only supported on macOS".into())
+}
+
+#[tauri::command]
+fn install_cli() -> Result<String, String> {
+    cli_path::install_cli()
 }
 
 fn open_file_in_new_window(app: &AppHandle, file_path: &str) {
@@ -81,7 +88,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf])
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf, install_cli])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

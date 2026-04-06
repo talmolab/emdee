@@ -154,6 +154,15 @@ async function openFile() {
   }
 }
 
+async function installCli() {
+  try {
+    const result = await invoke("install_cli");
+    await message(result, { title: "Install CLI Command", kind: "info" });
+  } catch (err) {
+    await message(err, { title: "Install CLI Command", kind: "error" });
+  }
+}
+
 async function checkForUpdates(silent = false) {
   try {
     const update = await check();
@@ -432,6 +441,8 @@ async function init() {
   const helpMenu = await Submenu.new({
     text: "Help",
     items: [
+      { id: "menu-install-cli", text: "Install CLI Command...", action: () => installCli() },
+      { item: "Separator" },
       { id: "menu-update", text: "Check for Updates...", action: () => checkForUpdates(false) },
     ],
   });
