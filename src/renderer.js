@@ -4,6 +4,7 @@ import taskListPlugin from "markdown-it-task-lists";
 import anchorPlugin from "markdown-it-anchor";
 import katexPluginModule from "@vscode/markdown-it-katex";
 const katexPlugin = katexPluginModule.default || katexPluginModule;
+import alertsPlugin from "markdown-it-github-alerts";
 import Prism from "prismjs";
 
 // Import Prism languages (statically bundled for browser use)
@@ -54,6 +55,7 @@ md.use(anchorPlugin, { permalink: false });
 md.use(footnotePlugin);
 md.use(taskListPlugin, { enabled: false, label: true });
 md.use(katexPlugin, { throwOnError: false });
+md.use(alertsPlugin);
 
 export function renderMarkdown(source) {
   return md.render(source);

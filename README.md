@@ -12,7 +12,7 @@ Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprin
 
 ## Features
 
-- **GitHub-flavored markdown** -- tables, task lists, strikethrough, footnotes, autolinks
+- **GitHub-flavored markdown** -- tables, task lists, strikethrough, footnotes, autolinks, alerts
 - **Syntax highlighting** -- 25+ languages via Prism.js
 - **KaTeX math** -- inline `$...$` and block `$$...$$` LaTeX
 - **Mermaid diagrams** -- lazy-loaded, zero cost when not used

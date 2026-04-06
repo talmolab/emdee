@@ -131,6 +131,18 @@ sequenceDiagram
 > [!NOTE]
 > This is a GitHub-style admonition note.
 
+> [!TIP]
+> This is a helpful tip for the reader.
+
+> [!IMPORTANT]
+> This is important information to be aware of.
+
+> [!WARNING]
+> This is a warning about potential issues.
+
+> [!CAUTION]
+> This is a caution about dangerous consequences.
+
 ## Horizontal Rules
 
 ---
