@@ -1,8 +1,8 @@
 [package]
 name = "emdee"
-version = "0.1.1"
+version = "0.1.2"
 description = "A minimal cross-platform markdown viewer"
-authors = ["you"]
+authors = ["Talmo Pereira <talmo@talmolab.org>"]
 license = "MIT"
 edition = "2021"
 rust-version = "1.77.2"
