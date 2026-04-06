@@ -13,6 +13,8 @@ export function initSearch() {
     bar.classList.remove("hidden");
     input.focus();
     input.select();
+    const wrapper = document.getElementById("content-wrapper");
+    if (wrapper) wrapper.style.paddingBottom = "52px";
   }
 
   function close() {
@@ -20,6 +22,8 @@ export function initSearch() {
     clearHighlights();
     input.value = "";
     count.textContent = "";
+    const wrapper = document.getElementById("content-wrapper");
+    if (wrapper) wrapper.style.paddingBottom = "";
   }
 
   function clearHighlights() {

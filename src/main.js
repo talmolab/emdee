@@ -15,6 +15,7 @@ import { buildTOC } from "./toc.js";
 import { initSearch } from "./search.js";
 import { initTheme } from "./theme.js";
 import { initSourceToggle, syncSourceSidebar } from "./source-toggle.js";
+import { addCopyButtons } from "./copy-button.js";
 
 let rawMarkdown = "";
 let fileDir = "";
@@ -112,6 +113,9 @@ async function loadFile(filePath) {
 
   // Post-render: mermaid
   await renderMermaidBlocks(content, theme.isDark());
+
+  // Post-render: copy buttons on code blocks
+  addCopyButtons(content);
 
   // Build TOC
   buildTOC(content, document.getElementById("toc-nav"));
@@ -308,6 +312,7 @@ async function init() {
       openFile();
     } else if (mod && e.key === "f") {
       e.preventDefault();
+      toolbar.classList.remove("toolbar-visible");
       search.open();
     } else if (mod && e.shiftKey && (e.key === "s" || e.key === "S")) {
       e.preventDefault();
@@ -358,6 +363,10 @@ async function init() {
   document.addEventListener("mousemove", (e) => {
     // Don't interfere with welcome or hint states
     if (toolbar.classList.contains("toolbar-welcome") || toolbar.classList.contains("toolbar-hint")) return;
+
+    // Suppress toolbar while search bar is open
+    const searchBar = document.getElementById("search-bar");
+    if (searchBar && !searchBar.classList.contains("hidden")) return;
 
     if (e.clientY >= window.innerHeight - TOOLBAR_ZONE) {
       clearTimeout(toolbarHideTimeout);

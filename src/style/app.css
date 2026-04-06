@@ -364,6 +364,30 @@ html, body {
   background: var(--bgColor-muted, #f6f8fa) !important;
 }
 
+/* Copy button on code blocks */
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 4px;
+  background: var(--bgColor-default, #ffffff);
+  color: var(--fgColor-muted, #656d76);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.markdown-body pre:hover .copy-btn {
+  opacity: 1;
+}
+.copy-btn:hover {
+  background: var(--bgColor-muted, #f6f8fa);
+  color: var(--fgColor-default, #1f2328);
+}
+
 /* Mermaid */
 .mermaid-diagram {
   display: flex;
