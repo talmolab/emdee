@@ -1,7 +1,9 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager};
+use std::time::Duration;
+use tauri::{AppHandle, Emitter, Manager};
 
 mod cli_path;
 
@@ -12,6 +14,11 @@ static WINDOW_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// Holds the file path passed via CLI args for the main window to pick up once loaded.
 struct InitialFile(Mutex<Option<String>>);
+
+/// Per-window file watchers for live reload. Keyed by window label.
+struct FileWatchers(
+    Mutex<HashMap<String, notify_debouncer_mini::Debouncer<notify::RecommendedWatcher>>>,
+);
 
 #[tauri::command]
 fn read_file(path: String) -> Result<String, String> {
@@ -29,6 +36,41 @@ fn resolve_path(base_dir: String, relative: String) -> String {
 #[tauri::command]
 fn get_initial_file(state: tauri::State<'_, InitialFile>) -> Option<String> {
     state.0.lock().unwrap().take()
+}
+
+/// Start watching a file for changes. Emits "file-changed" to the calling window on modification.
+#[tauri::command]
+fn watch_file(
+    window: tauri::WebviewWindow,
+    state: tauri::State<'_, FileWatchers>,
+    path: String,
+) -> Result<(), String> {
+    use notify_debouncer_mini::new_debouncer;
+
+    let label = window.label().to_string();
+    let emit_label = label.clone();
+    let file_path = PathBuf::from(&path);
+
+    let mut debouncer = new_debouncer(Duration::from_millis(200), move |result| {
+        if let Ok(_events) = result {
+            let _ = window.emit_to(&emit_label, "file-changed", ());
+        }
+    })
+    .map_err(|e| format!("Failed to create file watcher: {}", e))?;
+
+    debouncer
+        .watcher()
+        .watch(file_path.as_path(), notify::RecursiveMode::NonRecursive)
+        .map_err(|e| format!("Failed to watch file: {}", e))?;
+
+    state.0.lock().unwrap().insert(label, debouncer);
+    Ok(())
+}
+
+/// Stop watching a file for the calling window.
+#[tauri::command]
+fn unwatch_file(window: tauri::WebviewWindow, state: tauri::State<'_, FileWatchers>) {
+    state.0.lock().unwrap().remove(window.label());
 }
 
 /// Export the current webview content as a PDF file.
@@ -218,7 +260,15 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, export_pdf, install_cli, set_default_md_handler])
+        .manage(FileWatchers(Mutex::new(HashMap::new())))
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, watch_file, unwatch_file, export_pdf, install_cli, set_default_md_handler])
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::Destroyed = event {
+                if let Some(state) = window.try_state::<FileWatchers>() {
+                    state.0.lock().unwrap().remove(window.label());
+                }
+            }
+        })
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

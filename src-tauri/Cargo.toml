@@ -26,6 +26,8 @@ tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-updater = "2"
 dirs = "6"
+notify = "8.2.0"
+notify-debouncer-mini = "0.7.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winreg = "0.56"

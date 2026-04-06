@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { open as openDialog, save as saveDialog, ask, message } from "@tauri-apps/plugin-dialog";
 import { Menu, Submenu } from "@tauri-apps/api/menu";
@@ -23,6 +24,8 @@ let currentFilename = "";
 let search = null;
 let theme = null;
 let sourceToggle = null;
+let unlistenFileChanged = null;
+let isReloading = false;
 
 // Zoom state
 const ZOOM_STEP = 0.1;
@@ -141,6 +144,33 @@ async function loadFile(filePath) {
       tb.classList.remove("toolbar-hint");
     }, { once: true });
   }
+
+  // Start watching file for live reload
+  await setupFileWatcher(filePath);
+}
+
+async function setupFileWatcher(filePath) {
+  if (unlistenFileChanged) {
+    unlistenFileChanged();
+    unlistenFileChanged = null;
+  }
+  await invoke("watch_file", { path: filePath }).catch((err) => {
+    console.warn("File watching not available:", err);
+  });
+  unlistenFileChanged = await listen("file-changed", async () => {
+    if (isReloading) return;
+    isReloading = true;
+    try {
+      const wrapper = document.getElementById("content-wrapper");
+      const maxScroll = wrapper.scrollHeight - wrapper.clientHeight;
+      const scrollFraction = maxScroll > 0 ? wrapper.scrollTop / maxScroll : 0;
+      await loadFile(filePath);
+      const newMaxScroll = wrapper.scrollHeight - wrapper.clientHeight;
+      wrapper.scrollTop = scrollFraction * newMaxScroll;
+    } finally {
+      isReloading = false;
+    }
+  });
 }
 
 async function exportPDF() {
@@ -563,7 +593,7 @@ async function init() {
   setTimeout(() => checkForUpdates(true), 3000);
 }
 
-// Handle links: open external links in default browser
+// Handle links: open external links in default browser, navigate relative markdown links
 document.addEventListener("click", (e) => {
   const link = e.target.closest("a[href]");
   if (!link) return;
@@ -574,6 +604,22 @@ document.addEventListener("click", (e) => {
   if (href.startsWith("http://") || href.startsWith("https://")) {
     e.preventDefault();
     import("@tauri-apps/plugin-shell").then(({ open }) => open(href)).catch(() => {});
+    return;
+  }
+
+  // Relative markdown link: resolve against current file's directory and load in place
+  const [relativePath, fragment] = href.split("#");
+  if (fileDir && MD_EXTENSIONS.test(relativePath)) {
+    e.preventDefault();
+    invoke("resolve_path", { baseDir: fileDir, relative: decodeURIComponent(relativePath) })
+      .then((resolvedPath) => loadFile(resolvedPath))
+      .then(() => {
+        if (fragment) {
+          const target = document.getElementById(fragment);
+          if (target) target.scrollIntoView({ behavior: "smooth" });
+        }
+      })
+      .catch((err) => console.error("Failed to open relative link:", err));
   }
 });
 
