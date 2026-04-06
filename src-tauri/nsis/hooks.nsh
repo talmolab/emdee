@@ -4,6 +4,8 @@
 !include "StrFunc.nsh"
 ${StrStr}
 ${StrRep}
+${UnStrStr}
+${UnStrRep}
 
 !macro NSIS_HOOK_PREINSTALL
 !macroend
@@ -26,12 +28,12 @@ ${StrRep}
 !macro NSIS_HOOK_PREUNINSTALL
   ; Remove $INSTDIR from user PATH
   ReadRegStr $0 HKCU "Environment" "Path"
-  ${StrStr} $1 "$0" "$INSTDIR"
+  ${UnStrStr} $1 "$0" "$INSTDIR"
   ${If} $1 != ""
     ; Handle all possible positions: middle, start, end, or only entry
-    ${StrRep} $1 "$0" ";$INSTDIR" ""
-    ${StrRep} $1 "$1" "$INSTDIR;" ""
-    ${StrRep} $1 "$1" "$INSTDIR" ""
+    ${UnStrRep} $1 "$0" ";$INSTDIR" ""
+    ${UnStrRep} $1 "$1" "$INSTDIR;" ""
+    ${UnStrRep} $1 "$1" "$INSTDIR" ""
     WriteRegExpandStr HKCU "Environment" "Path" "$1"
     SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
   ${EndIf}
