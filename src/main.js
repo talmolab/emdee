@@ -10,7 +10,7 @@ import "./style/prism-theme.css";
 
 import { renderMarkdown } from "./renderer.js";
 import { resolveMediaPaths } from "./media.js";
-import { renderMermaidBlocks } from "./mermaid-loader.js";
+import { renderMermaidBlocks, reRenderMermaidBlocks } from "./mermaid-loader.js";
 import { buildTOC } from "./toc.js";
 import { initSearch } from "./search.js";
 import { initTheme } from "./theme.js";
@@ -254,7 +254,11 @@ async function checkForUpdates(silent = false) {
 
 async function init() {
   // Init theme first (affects mermaid rendering and native window appearance)
-  theme = initTheme();
+  theme = initTheme({
+    onToggle: (isDark) => {
+      reRenderMermaidBlocks(document.getElementById("content"), isDark);
+    },
+  });
 
   // Init search
   search = initSearch();
@@ -314,6 +318,9 @@ async function init() {
     } else if (mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
       e.preventDefault();
       exportPDF();
+    } else if (mod && e.shiftKey && (e.key === "d" || e.key === "D")) {
+      e.preventDefault();
+      theme.toggle();
     } else if (mod && e.key === "p") {
       e.preventDefault();
       window.print();
@@ -461,7 +468,6 @@ async function init() {
               theme: theme?.isDark() ? "dark" : "light",
             });
           }
-          break;
         }
       }
     }
@@ -499,7 +505,7 @@ async function init() {
       { id: "menu-toc", text: "Table of Contents", accelerator: "CmdOrCtrl+Shift+T", action: () => toggleSidebar() },
       { id: "menu-source", text: "View Source", accelerator: "CmdOrCtrl+Shift+S", action: () => sourceToggle?.toggle() },
       { item: "Separator" },
-      { id: "menu-theme", text: "Toggle Theme", action: () => theme.toggle() },
+      { id: "menu-theme", text: "Toggle Theme", accelerator: "CmdOrCtrl+Shift+D", action: () => theme.toggle() },
     ],
   });
 

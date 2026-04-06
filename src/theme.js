@@ -2,15 +2,16 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 const STORAGE_KEY = "emdee-theme";
 
-export function initTheme() {
+export function initTheme({ onToggle } = {}) {
   const saved = localStorage.getItem(STORAGE_KEY);
-  // Default to light — only go dark if user explicitly saved that preference
-  const isDark = saved === "dark";
+  const isDark = saved
+    ? saved === "dark"
+    : window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   applyTheme(isDark);
   updateIcons(isDark);
 
-  return { toggle, isDark: () => document.documentElement.dataset.theme === "dark" };
+  return { toggle: () => toggle(onToggle), isDark: () => document.documentElement.dataset.theme === "dark" };
 }
 
 function applyTheme(isDark) {
@@ -32,11 +33,12 @@ function updateIcons(isDark) {
   }
 }
 
-function toggle() {
+function toggle(onToggle) {
   const current = document.documentElement.dataset.theme;
   const next = current === "dark" ? "light" : "dark";
   const isDark = next === "dark";
   applyTheme(isDark);
   updateIcons(isDark);
   localStorage.setItem(STORAGE_KEY, next);
+  if (onToggle) onToggle(isDark);
 }
