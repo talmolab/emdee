@@ -27,13 +27,27 @@ let sourceToggle = null;
 let unlistenFileChanged = null;
 let isReloading = false;
 
-// Zoom state
+// Zoom state — unified across keyboard/scroll and pinch-to-zoom
 const ZOOM_STEP = 0.1;
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 3.0;
 let zoomLevel = 1.0;
+let pinchScale = 1.0;
+let gestureStartScale = 1.0;
+let isPinching = false;
+
+function clearPinchTransform() {
+  const el = document.getElementById("content-wrapper");
+  if (el) {
+    el.style.transform = "";
+    el.style.transition = "";
+    el.style.transformOrigin = "";
+  }
+}
 
 function applyZoom() {
+  clearPinchTransform();
+  pinchScale = 1.0;
   getCurrentWebviewWindow().setZoom(zoomLevel);
 }
 
@@ -287,6 +301,8 @@ async function checkForUpdates(silent = false) {
 }
 
 async function init() {
+  const platform = await invoke("get_platform");
+
   // Init theme first (affects mermaid rendering and native window appearance)
   theme = initTheme({
     onToggle: (isDark) => {
@@ -331,7 +347,11 @@ async function init() {
     theme.toggle();
   });
 
-  document.getElementById("btn-pdf").addEventListener("click", exportPDF);
+  if (platform === "macos") {
+    document.getElementById("btn-pdf").addEventListener("click", exportPDF);
+  } else {
+    document.getElementById("btn-pdf").style.display = "none";
+  }
 
   // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
@@ -350,7 +370,7 @@ async function init() {
     } else if (mod && e.shiftKey && (e.key === "t" || e.key === "T")) {
       e.preventDefault();
       toggleSidebar();
-    } else if (mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
+    } else if (platform === "macos" && mod && e.shiftKey && (e.key === "e" || e.key === "E")) {
       e.preventDefault();
       exportPDF();
     } else if (mod && e.shiftKey && (e.key === "d" || e.key === "D")) {
@@ -361,10 +381,10 @@ async function init() {
       window.print();
     } else if (mod && (e.key === "=" || e.key === "+")) {
       e.preventDefault();
-      zoomIn();
+      if (!isPinching) zoomIn();
     } else if (mod && e.key === "-") {
       e.preventDefault();
-      zoomOut();
+      if (!isPinching) zoomOut();
     } else if (mod && e.key === "0") {
       e.preventDefault();
       zoomReset();
@@ -427,44 +447,43 @@ async function init() {
   document.addEventListener("wheel", (e) => {
     if (e.ctrlKey) {
       e.preventDefault();
+      if (isPinching) return;
       if (e.deltaY < 0) zoomIn(); else if (e.deltaY > 0) zoomOut();
     }
   }, { passive: false });
 
-  // Trackpad pinch-to-zoom: smooth visual zoom via CSS transform (no reflow)
-  let pinchScale = 1.0;
-  let gestureStartScale = 1.0;
-
+  // Trackpad pinch-to-zoom: smooth CSS transform preview, committed to setZoom on end
   function applyPinchZoom(animate) {
-    if (animate) {
-      document.body.style.transition = "transform 0.2s ease-out";
-    } else {
-      document.body.style.transition = "";
-    }
-    document.body.style.transform = pinchScale === 1.0 ? "" : `scale(${pinchScale})`;
-    document.body.style.transformOrigin = "top center";
-  }
-
-  function snapPinchZoom() {
-    if (pinchScale < 1.0) pinchScale = 1.0;
-    applyPinchZoom(true);
+    const el = document.getElementById("content-wrapper");
+    if (!el) return;
+    el.style.transition = animate ? "transform 0.2s ease-out" : "";
+    el.style.transform = pinchScale === 1.0 ? "" : `scale(${pinchScale})`;
+    el.style.transformOrigin = "top center";
   }
 
   document.addEventListener("gesturestart", (e) => {
     e.preventDefault();
-    document.body.style.transition = "";
+    isPinching = true;
     gestureStartScale = pinchScale;
+    const el = document.getElementById("content-wrapper");
+    if (el) el.style.transition = "";
   });
 
   document.addEventListener("gesturechange", (e) => {
     e.preventDefault();
-    pinchScale = Math.min(ZOOM_MAX, Math.max(0.5, gestureStartScale * e.scale));
-    applyPinchZoom();
+    const raw = gestureStartScale * e.scale;
+    pinchScale = Math.min(ZOOM_MAX / zoomLevel, Math.max(ZOOM_MIN / zoomLevel, raw));
+    applyPinchZoom(false);
   });
 
   document.addEventListener("gestureend", (e) => {
     e.preventDefault();
-    snapPinchZoom();
+    isPinching = false;
+    // Commit pinch scale into the native zoom level
+    zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomLevel * pinchScale));
+    pinchScale = 1.0;
+    clearPinchTransform();
+    getCurrentWebviewWindow().setZoom(zoomLevel);
   });
 
   // Drag and drop — use Tauri's onDragDropEvent for actual file paths
@@ -513,17 +532,16 @@ async function init() {
   });
 
   // Build native menu bar
-  const fileMenu = await Submenu.new({
-    text: "File",
-    items: [
-      { id: "menu-open", text: "Open...", accelerator: "CmdOrCtrl+O", action: () => openFile() },
-      { item: "Separator" },
-      { id: "menu-print", text: "Print...", accelerator: "CmdOrCtrl+P", action: () => window.print() },
-      { id: "menu-export-pdf", text: "Export PDF...", accelerator: "CmdOrCtrl+Shift+E", action: () => exportPDF() },
-      { item: "Separator" },
-      { item: "Quit" },
-    ],
-  });
+  const fileMenuItems = [
+    { id: "menu-open", text: "Open...", accelerator: "CmdOrCtrl+O", action: () => openFile() },
+    { item: "Separator" },
+    { id: "menu-print", text: "Print...", accelerator: "CmdOrCtrl+P", action: () => window.print() },
+  ];
+  if (platform === "macos") {
+    fileMenuItems.push({ id: "menu-export-pdf", text: "Export PDF...", accelerator: "CmdOrCtrl+Shift+E", action: () => exportPDF() });
+  }
+  fileMenuItems.push({ item: "Separator" }, { item: "Quit" });
+  const fileMenu = await Submenu.new({ text: "File", items: fileMenuItems });
 
   const editMenu = await Submenu.new({
     text: "Edit",

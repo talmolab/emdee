@@ -91,6 +91,17 @@ fn install_cli() -> Result<String, String> {
     cli_path::install_cli()
 }
 
+#[tauri::command]
+fn get_platform() -> &'static str {
+    if cfg!(target_os = "macos") {
+        "macos"
+    } else if cfg!(target_os = "windows") {
+        "windows"
+    } else {
+        "linux"
+    }
+}
+
 /// Set emdee as the default handler for markdown file extensions on macOS.
 #[cfg(target_os = "macos")]
 #[tauri::command]
@@ -261,7 +272,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialFile(Mutex::new(None)))
         .manage(FileWatchers(Mutex::new(HashMap::new())))
-        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, watch_file, unwatch_file, export_pdf, install_cli, set_default_md_handler])
+        .invoke_handler(tauri::generate_handler![read_file, resolve_path, get_initial_file, watch_file, unwatch_file, export_pdf, install_cli, set_default_md_handler, get_platform])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
                 if let Some(state) = window.try_state::<FileWatchers>() {
