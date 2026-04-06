@@ -6,6 +6,8 @@
 
 <p align="center">A fast, minimal, cross-platform markdown viewer. Opens <code>.md</code> files natively on macOS, Windows, and Linux.</p>
 
+<p align="center"><a href="https://emdee.tlab.sh">emdee.tlab.sh</a></p>
+
 Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprint and near-instant startup.
 
 ## Features
@@ -31,12 +33,12 @@ Built with [Tauri v2](https://tauri.app) + vanilla JS for a lightweight footprin
 
 **macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/talmolab/emdee/main/scripts/install.sh | sh
+curl -fsSL https://emdee.tlab.sh/install.sh | sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/talmolab/emdee/main/scripts/install.ps1 | iex
+irm https://emdee.tlab.sh/install.ps1 | iex
 ```
 
 ### Manual download

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>emdee — fast, minimal markdown viewer</title>
+  <meta name="description" content="A fast, minimal, cross-platform markdown viewer. Opens .md files natively on macOS, Windows, and Linux.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon-512.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://emdee.tlab.sh/">
+  <meta property="og:title" content="emdee — fast, minimal markdown viewer">
+  <meta property="og:description" content="A fast, minimal, cross-platform markdown viewer. Opens .md files natively on macOS, Windows, and Linux.">
+  <meta property="og:image" content="https://emdee.tlab.sh/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="emdee — fast, minimal markdown viewer">
+  <meta name="twitter:description" content="A fast, minimal, cross-platform markdown viewer. Opens .md files natively on macOS, Windows, and Linux.">
+  <meta name="twitter:image" content="https://emdee.tlab.sh/og-image.png">
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="#" class="nav-brand">
+      <img src="/icon.svg" alt="emdee" width="28" height="28">
+      <span>emdee</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/talmolab/emdee" class="nav-github" aria-label="GitHub">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero + Install combined -->
+  <section class="hero">
+    <div class="hero-header">
+      <div class="hero-brand">
+        <img src="/icon.svg" alt="emdee icon" width="72" height="72" class="hero-icon">
+        <h1 class="hero-title">emdee</h1>
+      </div>
+      <p class="hero-tagline">A fast, minimal, cross-platform markdown viewer.<br>Opens <code>.md</code> files natively on macOS, Windows, and Linux.</p>
+    </div>
+
+    <div class="hero-install" id="install">
+      <div class="install-tabs">
+        <button class="tab active" data-tab="unix">macOS / Linux</button>
+        <button class="tab" data-tab="windows">Windows</button>
+      </div>
+      <div class="install-panels">
+        <div class="install-panel active" id="panel-unix">
+          <div class="code-block">
+            <pre><code>curl -fsSL https://emdee.tlab.sh/install.sh | sh</code></pre>
+            <button class="copy-btn" aria-label="Copy to clipboard">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+        </div>
+        <div class="install-panel" id="panel-windows">
+          <div class="code-block">
+            <pre><code>irm https://emdee.tlab.sh/install.ps1 | iex</code></pre>
+            <button class="copy-btn" aria-label="Copy to clipboard">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="hero-install-alt">or <a href="https://github.com/talmolab/emdee/releases/latest">download from GitHub Releases</a> · <a href="https://github.com/talmolab/emdee">view source</a></p>
+    </div>
+  </section>
+
+  <!-- Screenshot -->
+  <section class="screenshot-section">
+    <img src="/emdee-screenshot.png" alt="emdee app showing a markdown file in dark mode" width="1072" height="832" class="screenshot-img">
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="section">
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">GFM</div>
+        <h3>GitHub-Flavored Markdown</h3>
+        <p>Tables, task lists, strikethrough, footnotes, and autolinks — everything you expect.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3>Syntax Highlighting</h3>
+        <p>25+ languages via Prism.js with automatic language detection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="3" y="18" font-size="16" fill="currentColor" stroke="none" font-family="serif" font-style="italic">f</text><text x="12" y="14" font-size="10" fill="currentColor" stroke="none" font-family="serif" font-style="italic">(x)</text></svg>
+        </div>
+        <h3>KaTeX Math</h3>
+        <p>Inline <code>$...$</code> and block <code>$$...$$</code> LaTeX rendering.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8" y="14" width="7" height="7" rx="1"/><line x1="6.5" y1="10" x2="8.5" y2="14"/><line x1="17.5" y1="10" x2="14.5" y2="14"/></svg>
+        </div>
+        <h3>Mermaid Diagrams</h3>
+        <p>Flowcharts, sequence diagrams, and more. Lazy-loaded — zero cost when not used.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <h3>Dark / Light Theme</h3>
+        <p>Manual toggle between dark and light modes. Defaults to light.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="10" y2="6"/><line x1="5" y1="10" x2="12" y2="10"/><line x1="7" y1="14" x2="14" y2="14"/><line x1="5" y1="18" x2="12" y2="18"/></svg>
+        </div>
+        <h3>Table of Contents</h3>
+        <p>Auto-generated sidebar from headings with scroll tracking.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>In-Document Search</h3>
+        <p>Ctrl/Cmd+F with match highlighting and navigation between results.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Multi-Window & File Associations</h3>
+        <p>Each file opens in its own window. Registers as handler for <code>.md</code>, <code>.markdown</code>, <code>.mdown</code>, <code>.mkd</code>, <code>.mdx</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Downloads -->
+  <section id="downloads" class="section">
+    <h2 class="section-title">Downloads</h2>
+    <p class="section-subtitle">Or grab the installer directly.</p>
+    <table class="styled-table">
+      <thead>
+        <tr><th>Platform</th><th>Format</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>macOS (Universal)</td><td><code>.dmg</code></td></tr>
+        <tr><td>Windows</td><td><code>.exe</code> (NSIS), <code>.msi</code></td></tr>
+        <tr><td>Linux</td><td><code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code></td></tr>
+      </tbody>
+    </table>
+    <p class="install-note">The app checks for updates automatically and can be updated from <strong>Help &gt; Check for Updates</strong>.</p>
+  </section>
+
+  <!-- Keyboard Shortcuts -->
+  <section id="shortcuts" class="section">
+    <h2 class="section-title">Keyboard Shortcuts</h2>
+    <table class="styled-table">
+      <thead>
+        <tr><th>Shortcut</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><kbd>Cmd/Ctrl+O</kbd></td><td>Open file</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+F</kbd></td><td>Search in document</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+Shift+S</kbd></td><td>Toggle source view</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+Shift+T</kbd></td><td>Toggle table of contents</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+P</kbd></td><td>Print</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+Shift+E</kbd></td><td>Export PDF (macOS)</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+=</kbd></td><td>Zoom in</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+-</kbd></td><td>Zoom out</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+0</kbd></td><td>Reset zoom</td></tr>
+        <tr><td><kbd>Cmd/Ctrl+A</kbd></td><td>Select all (content only)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Stack -->
+  <section id="stack" class="section">
+    <h2 class="section-title">Stack</h2>
+    <p class="section-subtitle">Built for speed and simplicity. No framework overhead.</p>
+    <table class="styled-table">
+      <thead>
+        <tr><th>Layer</th><th>Choice</th><th>Size</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Runtime</td><td>Tauri v2</td><td>~5 MB binary</td></tr>
+        <tr><td>Frontend</td><td>Vanilla JS + Vite</td><td>0 KB framework</td></tr>
+        <tr><td>Renderer</td><td>markdown-it</td><td>~43 KB</td></tr>
+        <tr><td>Styling</td><td>github-markdown-css</td><td>~5 KB</td></tr>
+        <tr><td>Code highlighting</td><td>Prism.js</td><td>~15 KB</td></tr>
+        <tr><td>Math</td><td>KaTeX</td><td>~28 KB</td></tr>
+        <tr><td>Diagrams</td><td>Mermaid (lazy)</td><td>~150 KB on demand</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>MIT License &middot; <a href="https://github.com/talmolab/emdee">GitHub</a> &middot; Built with <a href="https://tauri.app">Tauri v2</a></p>
+  </footer>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>

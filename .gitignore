@@ -4,3 +4,5 @@ src-tauri/target/
 *.DS_Store
 .claude/launch.json
 .claude/settings.local.json
+site/node_modules/
+site/dist/
