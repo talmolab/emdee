@@ -140,9 +140,16 @@ install_linux() {
   version="$1"
   arch="$2"
 
+  # Map architecture to Debian naming
+  case "$arch" in
+    x86_64)   deb_arch="amd64" ;;
+    aarch64)  deb_arch="arm64" ;;
+    *)        deb_arch="$arch" ;;
+  esac
+
   # Prefer .deb if dpkg is available, otherwise use AppImage
   if command -v dpkg >/dev/null 2>&1; then
-    deb_name="${APP_NAME}_${version}_amd64.deb"
+    deb_name="${APP_NAME}_${version}_${deb_arch}.deb"
     url="https://github.com/$REPO/releases/download/v${version}/${deb_name}"
 
     tmpdir="$(mktemp -d)"
@@ -158,7 +165,7 @@ install_linux() {
     echo ""
     echo "Usage: ${APP_NAME} README.md"
   else
-    appimage_name="${APP_NAME}_${version}_amd64.AppImage"
+    appimage_name="${APP_NAME}_${version}_${deb_arch}.AppImage"
     url="https://github.com/$REPO/releases/download/v${version}/${appimage_name}"
 
     install_dir="${HOME}/.local/bin"
