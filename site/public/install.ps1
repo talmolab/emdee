@@ -18,7 +18,9 @@ New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
 Write-Host "Downloading: $url"
 Invoke-WebRequest -Uri $url -OutFile $installerPath
 
-Write-Host "Running installer..."
+Write-Host "Running installer (silent mode)..."
+Write-Host "  The installer will run without prompts. To run interactively, download from:"
+Write-Host "  https://github.com/$repo/releases/latest"
 Start-Process -FilePath $installerPath -ArgumentList "/S" -Wait
 
 Remove-Item -Recurse -Force $tempDir
